@@ -1,0 +1,71 @@
+# LAF - AI 3D模型创作平台
+
+基于Expo和React Native构建的跨平台移动应用，支持AI创作和3D模型展示。
+
+## 🚀 快速开始
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 启动开发服务器
+
+```bash
+npm start
+```
+
+### 平台特定启动
+
+```bash
+npm run ios        # iOS模拟器
+npm run android    # Android模拟器
+npm run web        # Web浏览器
+```
+
+## 📱 功能特性
+
+- **🎨 AI创作** - 智能生成3D模型
+- **🔍 模型发现** - 浏览和搜索优质3D模型
+- **👤 个人中心** - 管理创作和历史记录
+
+## 🛠️ 技术栈
+
+- **框架**: Expo SDK 54, React Native 0.81, React 19
+- **路由**: Expo Router 6 (文件路由)
+- **类型**: TypeScript 5.9+ (严格模式)
+- **动画**: React Native Reanimated 4
+- **主题**: 支持亮暗双主题
+
+## 🎨 双UI设计
+
+本项目采用平台原生UI设计：
+
+- **iOS**: Apple HIG设计规范，毛玻璃效果，SF Symbols
+- **Android**: Material Design 3规范，涟漪效果，Material Icons
+
+## 📁 项目结构
+
+```
+├── app/                    # Expo Router页面路由
+├── components/             # 组件库
+│   ├── ui/                # 基础UI组件
+│   └── pages/             # 页面专属组件
+├── constants/             # 常量和主题
+├── hooks/                 # 自定义Hook
+├── services/              # API服务层
+├── types/                 # TypeScript类型
+└── utils/                 # 工具函数
+```
+
+## 🔧 开发命令
+
+```bash
+npm run lint              # 代码检查
+npm run reset-project     # 重置项目模板
+```
+
+## 📄 许可证
+
+MIT License

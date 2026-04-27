@@ -1,0 +1,469 @@
+{
+  "app": {
+    "name": "Lumi"
+  },
+  "tabs": {
+    "discover": "发现",
+    "create": "创作",
+    "printer": "打印",
+    "profile": "我的"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "retry": "重试",
+    "back": "返回",
+    "logout": "退出登录",
+    "ok": "好的",
+    "close": "关闭"
+  },
+  "modelCard": {
+    "private": "私有",
+    "public": "发布"
+  },
+  "discover": {
+    "title": "发现",
+    "searchPlaceholder": "搜索 3D 模型...",
+    "filter": {
+      "label": "筛选",
+      "latest": "最新发布",
+      "popular": "最受欢迎"
+    },
+    "recent": "最近浏览",
+    "popular": "热门模型",
+    "categories": "分类",
+    "empty": "暂无模型"
+  },
+  "printer": {
+    "title": "打印",
+    "status": "状态",
+    "progress": "进度",
+    "pause": "暂停",
+    "resume": "继续",
+    "stop": "停止",
+    "complete": "完成",
+    "pauseFailed": "暂停打印失败，请重试",
+    "resumeFailed": "继续打印失败，请重试",
+    "stopFailed": "停止打印失败，请重试",
+    "stopConfirm": "确认停止打印",
+    "stopConfirmMessage": "停止后无法恢复，确定要停止当前打印任务吗？",
+    "status": {
+      "idle": "空闲",
+      "printing": "打印中",
+      "paused": "已暂停",
+      "offline": "离线",
+      "error": "错误"
+    },
+    "statusCard": {
+      "title": "打印机状态",
+      "current": "当前",
+      "target": "目标",
+      "nozzle": "喷头",
+      "bed": "热床",
+      "printSpeed": "打印速度",
+      "fanSpeed": "风扇速度"
+    },
+    "selector": {
+      "title": "选择打印机",
+      "addPrinter": "添加打印机",
+      "unbindConfirm": "确认解绑",
+      "unbindMessage": "确定要解绑打印机 \"{{deviceName}}\" 吗？\n\n解绑后将无法继续使用此打印机，需要重新扫码绑定。",
+      "confirmUnbind": "确认解绑"
+    },
+    "screen": {
+      "loading": "加载中...",
+      "noPrinter": "暂无打印机",
+      "scanHint": "扫描打印机二维码进行绑定",
+      "scanButton": "扫码添加打印机",
+      "unbindFailed": "解绑失败",
+      "pausePrint": "暂停打印",
+      "resumePrint": "继续打印",
+      "stopPrint": "停止打印",
+      "featureInProgress": "功能开发中..."
+    }
+  },
+  "about": {
+    "title": "关于",
+    "version": "版本",
+    "checkUpdate": "检查更新",
+    "latestVersion": "当前已是最新版本",
+    "checkUpdateFailed": "检查更新失败，请稍后重试",
+    "userAgreement": "用户协议",
+    "privacyPolicy": "隐私政策",
+    "comingSoon": "功能开发中...",
+    "copyright": "© 2025 Lumi",
+    "allRightsReserved": "保留所有权利"
+  },
+  "appearance": {
+    "title": "外观设置",
+    "themeMode": "主题模式",
+    "followSystem": "跟随系统",
+    "followSystemDesc": "自动跟随系统设置",
+    "lightMode": "浅色模式",
+    "lightModeDesc": "始终使用浅色主题",
+    "darkMode": "深色模式",
+    "darkModeDesc": "始终使用深色主题"
+  },
+  "profile": {
+    "title": "我的",
+    "stats": {
+      "models": "3D模型",
+      "favorites": "收藏",
+      "likes": "喜欢"
+    },
+    "menu": {
+      "history": "创作历史",
+      "favorites": "我的收藏",
+      "language": "语言",
+      "appearance": "外观设置",
+      "about": "关于",
+      "printTasks": "我的打印任务",
+      "devices": "我的设备",
+      "security": "账户安全",
+      "help": "帮助与支持",
+      "settings": "设置"
+    },
+    "logout": "退出登录"
+  },
+  "create": {
+    "title": "AI 创作",
+    "studio": "AI 创作工作室",
+    "subtitle": "描述灵感，我们帮你生成精致的 3D 模型",
+    "promptPlaceholder": "描述你想要的 3D 模型细节...",
+    "quickInspiration": "快速灵感",
+    "tip": "小提示：点击标签即可自动填入示例描述",
+    "generating": "生成中…",
+    "generateImage": "生成图片",
+    "generateFailed": "生成失败",
+    "restart": "重新开始",
+    "regenerate": "重新生成",
+    "styles": {
+      "scifi": "科幻",
+      "nature": "自然",
+      "characters": "角色",
+      "architecture": "建筑",
+      "fantasy": "幻想",
+      "vehicles": "载具",
+      "anime": "动漫",
+      "realistic": "写实",
+      "cartoon": "卡通",
+      "watercolor": "水彩",
+      "oilpainting": "油画",
+      "pixelart": "像素艺术",
+      "cyberpunk": "赛博朋克",
+      "steampunk": "蒸汽朋克",
+      "vintage": "复古",
+      "minimalist": "极简",
+      "gothic": "哥特",
+      "popart": "波普艺术"
+    },
+    "stylePrompts": {
+      "scifi": "一条泛着体积光的太空飞船走廊，金属细节精致。",
+      "nature": "一棵摆放在石台上的小型盆景树，柔和晨光照射。",
+      "characters": "一位科幻探险者的半身像，冷暖对比光与精致皮肤。",
+      "architecture": "一座悬浮的未来白色展馆，玻璃与曲线结构交错。",
+      "fantasy": "一个漂浮的奇幻岛屿，瀑布和发光水晶环绕。",
+      "vehicles": "低多边形的电动概念车，工作室柔光照亮车身。",
+      "anime": "日系动漫风格，色彩鲜艳，线条简洁。",
+      "realistic": "高度写实风格，细节逼真，光影自然。",
+      "cartoon": "卡通风格，圆润可爱，色彩明快。",
+      "watercolor": "水彩画风，柔和渐变，艺术感强。",
+      "oilpainting": "油画风格，笔触丰富，质感厚重。",
+      "pixelart": "像素艺术风格，复古游戏感，清晰像素块。",
+      "cyberpunk": "赛博朋克风格，霓虹灯光，未来科技感。",
+      "steampunk": "蒸汽朋克风格，黄铜机械，维多利亚时代。",
+      "vintage": "复古怀旧风格，温暖色调，岁月痕迹。",
+      "minimalist": "极简主义风格，简洁线条，留白空间。",
+      "gothic": "哥特风格，黑暗神秘，尖拱装饰。",
+      "popart": "波普艺术风格，鲜艳色彩，重复图案。"
+    },
+    "imageSelection": {
+      "title": "AI 图像选择",
+      "generating": "请稍候，正在生成新的预览图",
+      "selectHint": "请选择一张最符合需求的图",
+      "generate3D": "生成 3D 模型"
+    },
+    "modelGenerating": {
+      "title": "3D 模型生成中",
+      "subtitle": "请稍候，正在为你生成 3D 模型"
+    },
+    "modelComplete": {
+      "title": "AI 生成完成",
+      "waitingPreview": "等待预览",
+      "stats": {
+        "format": "模型格式",
+        "size": "文件大小",
+        "vertices": "顶点数"
+      },
+      "preview3D": "预览 3D",
+      "print": "打印",
+      "startNew": "开始新任务"
+    },
+    "addImage": "添加参考图片",
+    "imageLimit": {
+      "title": "图片数量限制",
+      "message": "最多只能上传5张参考图片",
+      "overflowMessage": "只能再添加 {{count}} 张图片，已自动选择前 {{count}} 张"
+    },
+    "imagePermission": {
+      "title": "权限请求",
+      "message": "需要相册权限才能选择图片"
+    },
+    "imageError": {
+      "title": "选择失败",
+      "message": "选择图片时发生错误，请重试"
+    }
+  },
+  "createHistory": {
+    "title": "创作历史",
+    "back": "返回",
+    "loading": "加载中...",
+    "empty": "暂无创作记录",
+    "error": "加载失败",
+    "taskDetail": "任务详情",
+    "noImage": "暂无图片",
+    "taskNotFound": "任务不存在",
+    "status": {
+      "imagesReady": "图片已就绪",
+      "modelReady": "已完成",
+      "generatingImages": "生成图片中",
+      "generatingModel": "生成模型中",
+      "failed": "失败",
+      "cancelled": "已取消",
+      "unknown": "未知"
+    },
+    "time": {
+      "justNow": "刚刚",
+      "minutesAgo": "{{count}}分钟前",
+      "hoursAgo": "{{count}}小时前",
+      "daysAgo": "{{count}}天前"
+    },
+    "deleteConfirm": {
+      "title": "确认删除",
+      "message": "确定要删除这个任务吗？"
+    },
+    "deleteFailed": {
+      "title": "删除失败",
+      "message": "删除任务时发生错误"
+    }
+  },
+  "modelViewer": {
+    "title": "3D 预览",
+    "back": "返回",
+    "loading": "加载中...",
+    "error": "模型加载失败",
+    "modelNotFound": "模型未找到",
+    "aiModel": "AI 生成模型",
+    "defaultName": "3D 模型",
+    "resetCamera": "重置视角",
+    "showGrid": "显示网格",
+    "hideGrid": "隐藏网格",
+    "color": "颜色",
+    "colors": {
+      "original": "原始贴图",
+      "white": "白色",
+      "blue": "蓝色",
+      "green": "绿色"
+    }
+  },
+  "userModels": {
+    "myModels": {
+      "title": "我的模型",
+      "empty": "暂无模型\n快去创建你的第一个 3D 模型吧！"
+    },
+    "myFavorites": {
+      "title": "我的收藏",
+      "empty": "暂无收藏\n快去发现并收藏你喜欢的模型吧！"
+    },
+    "myLikes": {
+      "title": "我喜欢的",
+      "empty": "暂无喜欢\n快去发现并点赞你喜欢的模型吧！"
+    },
+    "back": "返回"
+  },
+  "modelDetail": {
+    "title": "模型详情",
+    "back": "返回",
+    "loading": "加载中...",
+    "notFound": "模型未找到",
+    "error": "无法找到该模型，可能已被删除或不存在。",
+    "preview3D": "预览 3D 模型",
+    "anonymousUser": "匿名用户",
+    "likes": "喜欢",
+    "favorites": "收藏",
+    "views": "浏览",
+    "techSpecs": "技术规格",
+    "format": "格式",
+    "fileSize": "文件大小",
+    "faceCount": "面数",
+    "vertexCount": "顶点数",
+    "print": "一键打印",
+    "noPrinter": "暂无可用打印机，请连接打印机",
+    "connectPrinter": "连接打印机",
+    "manage": "模型管理",
+    "visibility": "可见性",
+    "private": "仅自己可见",
+    "public": "所有人可见",
+    "deleteModel": "删除模型",
+    "deleteConfirm": {
+      "title": "确认删除",
+      "message": "确定要删除这个模型吗？此操作无法撤销。"
+    },
+    "deleteFailed": {
+      "title": "删除失败",
+      "message": "删除模型时发生错误"
+    },
+    "updateFailed": {
+      "title": "更新失败",
+      "message": "更新模型可见性时发生错误"
+    }
+  },
+  "language": {
+    "title": "语言",
+    "chinese": "中文",
+    "english": "English",
+    "selectLanguage": "选择语言",
+    "auto": "跟随系统",
+    "switchSuccess": "语言已切换"
+  },
+  "dialog": {
+    "common": {
+      "title": "提示",
+      "confirm": "确定",
+      "cancel": "取消",
+      "ok": "好的",
+      "retry": "重试",
+      "close": "关闭"
+    },
+    "auth": {
+      "requireLogin": "请先登录后再进行操作",
+      "gotoLogin": "去登录",
+      "loginFailed": "登录失败"
+    },
+    "error": {
+      "title": "错误",
+      "networkError": "网络连接失败，请检查网络设置",
+      "loadFailed": "加载失败，请稍后重试",
+      "operationFailed": "操作失败",
+      "unknownError": "未知错误"
+    },
+    "profile": {
+      "refreshFailed": "获取用户信息失败，请检查网络连接"
+    },
+    "interaction": {
+      "likeFailed": "点赞失败，请稍后重试",
+      "favoriteFailed": "收藏失败，请稍后重试"
+    },
+    "scanner": {
+      "title": "扫描打印机二维码",
+      "requestingPermission": "正在请求相机权限...",
+      "needPermission": "需要相机权限才能扫描二维码",
+      "grantPermission": "授予权限",
+      "scanHint": "将二维码放入框内进行扫描",
+      "binding": "正在绑定打印机...",
+      "confirmBind": "确认绑定",
+      "confirmBindMessage": "设备名称：{{deviceName}}\n绑定码：{{code}}\n\n确认绑定此打印机？",
+      "bindSuccess": "打印机绑定成功",
+      "bindFailed": "绑定失败",
+      "qrCodeError": "二维码格式错误，请扫描正确的打印机二维码",
+      "rescan": "重新扫描"
+    },
+    "printer": {
+      "operationFailed": "操作失败"
+    }
+  },
+  "error": {
+    "network": "网络连接有问题，请检查网络设置",
+    "server": "服务器暂时繁忙，请稍后重试",
+    "unknown": "操作失败，请重试"
+  },
+  "errorBoundary": {
+    "title": "应用遇到了问题",
+    "description": "很抱歉，应用遇到了一个意外错误。\n请尝试重启应用或联系技术支持。",
+    "details": "错误详情：",
+    "reload": "重新加载"
+  },
+  "auth": {
+    "title": "欢迎",
+    "login": {
+      "title": "欢迎回来",
+      "subtitle": "使用邮箱验证码登录您的账号",
+      "tab": "登录",
+      "submit": "登录"
+    },
+    "register": {
+      "title": "创建账号",
+      "subtitle": "使用邮箱验证码创建新账号",
+      "tab": "注册",
+      "submit": "注册"
+    },
+    "email": {
+      "label": "邮箱地址",
+      "placeholder": "请输入邮箱地址",
+      "error": {
+        "required": "请输入邮箱地址",
+        "invalid": "请输入有效的邮箱地址"
+      }
+    },
+    "code": {
+      "label": "验证码",
+      "placeholder": "请输入验证码",
+      "send": "发送验证码",
+      "sending": "发送中...",
+      "resend": "重新发送",
+      "countdown": "{{seconds}}秒后重试",
+      "error": {
+        "required": "请输入验证码",
+        "invalid": "验证码应为 4-6 位"
+      }
+    },
+    "footer": {
+      "terms": "登录即表示同意我们的服务条款和隐私政策"
+    },
+    "error": {
+      "sendCodeFailed": "发送验证码失败，请稍后重试",
+      "loginFailed": "登录失败，请检查邮箱和验证码",
+      "registerFailed": "注册失败，请检查邮箱和验证码"
+    },
+    "success": {
+      "loginSuccess": "登录成功",
+      "registerSuccess": "注册成功"
+    }
+  },
+  "taskProgress": {
+    "printed": "已打印",
+    "remaining": "剩余",
+    "layer": "第 {{current}} / {{total}} 层"
+  },
+  "style": {
+    "title": "选择风格",
+    "realistic": "真实写实",
+    "cartoon": "卡通手绘",
+    "lowpoly": "低多边形",
+    "cyberpunk": "赛博朋克",
+    "pixel": "像素风格",
+    "handdrawn": "手绘风格"
+  },
+  "examples": {
+    "title": "试试这些创意",
+    "fox": {
+      "name": "低多边形狐狸",
+      "prompt": "一只坐在石头上的低多边形狐狸"
+    },
+    "city": {
+      "name": "赛博朋克城市",
+      "prompt": "赛博朋克风格的未来城市建筑"
+    },
+    "robot": {
+      "name": "可爱机器人",
+      "prompt": "卡通风格的可爱机器人"
+    }
+  }
+}

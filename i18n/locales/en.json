@@ -1,0 +1,469 @@
+{
+  "app": {
+    "name": "Lumi"
+  },
+  "tabs": {
+    "discover": "Discover",
+    "create": "Create",
+    "printer": "Printer",
+    "profile": "Profile"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "retry": "Retry",
+    "back": "Back",
+    "logout": "Log Out",
+    "ok": "OK",
+    "close": "Close"
+  },
+  "modelCard": {
+    "private": "Private",
+    "public": "Public"
+  },
+  "discover": {
+    "title": "Discover",
+    "searchPlaceholder": "Search 3D models...",
+    "filter": {
+      "label": "Filter",
+      "latest": "Latest",
+      "popular": "Most Popular"
+    },
+    "recent": "Recent",
+    "popular": "Popular",
+    "categories": "Categories",
+    "empty": "No models"
+  },
+  "printer": {
+    "title": "Printer",
+    "status": "Status",
+    "progress": "Progress",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "complete": "Complete",
+    "pauseFailed": "Failed to pause printing, please try again",
+    "resumeFailed": "Failed to resume printing, please try again",
+    "stopFailed": "Failed to stop printing, please try again",
+    "stopConfirm": "Confirm Stop Printing",
+    "stopConfirmMessage": "Cannot be resumed after stopping. Are you sure you want to stop the current print job?",
+    "status": {
+      "idle": "Idle",
+      "printing": "Printing",
+      "paused": "Paused",
+      "offline": "Offline",
+      "error": "Error"
+    },
+    "statusCard": {
+      "title": "Printer Status",
+      "current": "Current",
+      "target": "Target",
+      "nozzle": "Nozzle",
+      "bed": "Bed",
+      "printSpeed": "Print Speed",
+      "fanSpeed": "Fan Speed"
+    },
+    "selector": {
+      "title": "Select Printer",
+      "addPrinter": "Add Printer",
+      "unbindConfirm": "Confirm Unbind",
+      "unbindMessage": "Are you sure you want to unbind printer \"{{deviceName}}\"?\n\nAfter unbinding, you will not be able to use this printer and will need to scan the QR code again to bind it.",
+      "confirmUnbind": "Confirm Unbind"
+    },
+    "screen": {
+      "loading": "Loading...",
+      "noPrinter": "No Printer",
+      "scanHint": "Scan printer QR code to bind",
+      "scanButton": "Scan to Add Printer",
+      "unbindFailed": "Unbind Failed",
+      "pausePrint": "Pause Printing",
+      "resumePrint": "Resume Printing",
+      "stopPrint": "Stop Printing",
+      "featureInProgress": "Feature in development..."
+    }
+  },
+  "about": {
+    "title": "About",
+    "version": "Version",
+    "checkUpdate": "Check for Updates",
+    "latestVersion": "You are using the latest version",
+    "checkUpdateFailed": "Failed to check for updates, please try again later",
+    "userAgreement": "User Agreement",
+    "privacyPolicy": "Privacy Policy",
+    "comingSoon": "Coming Soon",
+    "copyright": "© 2025 Lumi",
+    "allRightsReserved": "All rights reserved"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "themeMode": "Theme Mode",
+    "followSystem": "Follow System",
+    "followSystemDesc": "Automatically follow system settings",
+    "lightMode": "Light Mode",
+    "lightModeDesc": "Always use light theme",
+    "darkMode": "Dark Mode",
+    "darkModeDesc": "Always use dark theme"
+  },
+  "profile": {
+    "title": "Profile",
+    "stats": {
+      "models": "Models",
+      "favorites": "Favorites",
+      "likes": "Likes"
+    },
+    "menu": {
+      "history": "Creation History",
+      "favorites": "My Favorites",
+      "language": "Language",
+      "appearance": "Appearance",
+      "about": "About",
+      "printTasks": "My Print Tasks",
+      "devices": "My Devices",
+      "security": "Account Security",
+      "help": "Help & Support",
+      "settings": "Settings"
+    },
+    "logout": "Log Out"
+  },
+  "create": {
+    "title": "AI Create",
+    "studio": "AI Creation Studio",
+    "subtitle": "Describe your inspiration, we'll help you create exquisite 3D models",
+    "promptPlaceholder": "Describe the 3D model details you want...",
+    "quickInspiration": "Quick Inspiration",
+    "tip": "Tip: Tap tags to auto-fill sample descriptions",
+    "generating": "Generating...",
+    "generateImage": "Generate Image",
+    "generateFailed": "Generation Failed",
+    "restart": "Start Over",
+    "regenerate": "Regenerate",
+    "styles": {
+      "scifi": "Sci-Fi",
+      "nature": "Nature",
+      "characters": "Characters",
+      "architecture": "Architecture",
+      "fantasy": "Fantasy",
+      "vehicles": "Vehicles",
+      "anime": "Anime",
+      "realistic": "Realistic",
+      "cartoon": "Cartoon",
+      "watercolor": "Watercolor",
+      "oilpainting": "Oil Painting",
+      "pixelart": "Pixel Art",
+      "cyberpunk": "Cyberpunk",
+      "steampunk": "Steampunk",
+      "vintage": "Vintage",
+      "minimalist": "Minimalist",
+      "gothic": "Gothic",
+      "popart": "Pop Art"
+    },
+    "stylePrompts": {
+      "scifi": "A spaceship corridor with volumetric lighting, exquisite metal details.",
+      "nature": "A small bonsai tree on a stone platform, soft morning light.",
+      "characters": "A sci-fi explorer bust,冷暖 contrast lighting and detailed skin.",
+      "architecture": "A floating futuristic white pavilion with glass and curved structures.",
+      "fantasy": "A floating fantasy island surrounded by waterfalls and glowing crystals.",
+      "vehicles": "Low-poly electric concept car, studio soft lighting illuminates the body.",
+      "anime": "Japanese anime style, vibrant colors, clean lines.",
+      "realistic": "Highly realistic style, detailed with natural lighting.",
+      "cartoon": "Cartoon style, rounded and cute, bright colors.",
+      "watercolor": "Watercolor painting style, soft gradients, artistic feel.",
+      "oilpainting": "Oil painting style, rich brushstrokes, heavy texture.",
+      "pixelart": "Pixel art style, retro gaming feel, clear pixel blocks.",
+      "cyberpunk": "Cyberpunk style, neon lights, futuristic tech.",
+      "steampunk": "Steampunk style, brass mechanics, Victorian era.",
+      "vintage": "Vintage nostalgic style, warm tones, aged patina.",
+      "minimalist": "Minimalist style, clean lines, negative space.",
+      "gothic": "Gothic style, dark and mysterious, pointed arches.",
+      "popart": "Pop art style, vibrant colors, repeating patterns."
+    },
+    "imageSelection": {
+      "title": "AI Image Selection",
+      "generating": "Please wait, generating new preview images",
+      "selectHint": "Please select the image that best meets your requirements",
+      "generate3D": "Generate 3D Model"
+    },
+    "modelGenerating": {
+      "title": "3D Model Generation",
+      "subtitle": "Please wait, generating your 3D model"
+    },
+    "modelComplete": {
+      "title": "AI Generation Complete",
+      "waitingPreview": "Waiting for Preview",
+      "stats": {
+        "format": "Format",
+        "size": "Size",
+        "vertices": "Vertices"
+      },
+      "preview3D": "Preview 3D",
+      "print": "Print",
+      "startNew": "Start New Task"
+    },
+    "addImage": "Add Reference Images",
+    "imageLimit": {
+      "title": "Image Limit",
+      "message": "You can upload up to 5 reference images",
+      "overflowMessage": "You can only add {{count}} more. Automatically selected the first {{count}}."
+    },
+    "imagePermission": {
+      "title": "Permission Required",
+      "message": "Photo library permission is required to select images"
+    },
+    "imageError": {
+      "title": "Selection Failed",
+      "message": "An error occurred while selecting images, please try again"
+    }
+  },
+  "createHistory": {
+    "title": "Creation History",
+    "back": "Back",
+    "loading": "Loading...",
+    "empty": "No creation records",
+    "error": "Loading failed",
+    "taskDetail": "Task Details",
+    "noImage": "No Image",
+    "taskNotFound": "Task not found",
+    "status": {
+      "imagesReady": "Images Ready",
+      "modelReady": "Completed",
+      "generatingImages": "Generating Images",
+      "generatingModel": "Generating Model",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown"
+    },
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "deleteConfirm": {
+      "title": "Confirm Delete",
+      "message": "Are you sure you want to delete this task?"
+    },
+    "deleteFailed": {
+      "title": "Delete Failed",
+      "message": "An error occurred while deleting the task"
+    }
+  },
+  "modelViewer": {
+    "title": "3D Preview",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Failed to load model",
+    "modelNotFound": "Model not found",
+    "aiModel": "AI Generated Model",
+    "defaultName": "3D Model",
+    "resetCamera": "Reset View",
+    "showGrid": "Show Grid",
+    "hideGrid": "Hide Grid",
+    "color": "Color",
+    "colors": {
+      "original": "Original",
+      "white": "White",
+      "blue": "Blue",
+      "green": "Green"
+    }
+  },
+  "userModels": {
+    "myModels": {
+      "title": "My Models",
+      "empty": "No models yet\nGo create your first 3D model!"
+    },
+    "myFavorites": {
+      "title": "My Favorites",
+      "empty": "No favorites yet\nGo discover and collect models you like!"
+    },
+    "myLikes": {
+      "title": "My Likes",
+      "empty": "No likes yet\nGo discover and like models you love!"
+    },
+    "back": "Back"
+  },
+  "modelDetail": {
+    "title": "Model Details",
+    "back": "Back",
+    "loading": "Loading...",
+    "notFound": "Model not found",
+    "error": "Unable to find this model. It may have been deleted or does not exist.",
+    "preview3D": "Preview 3D Model",
+    "anonymousUser": "Anonymous User",
+    "likes": "Likes",
+    "favorites": "Favorites",
+    "views": "Views",
+    "techSpecs": "Technical Specs",
+    "format": "Format",
+    "fileSize": "File Size",
+    "faceCount": "Faces",
+    "vertexCount": "Vertices",
+    "print": "Print",
+    "noPrinter": "No printer available. Please connect a printer.",
+    "connectPrinter": "Connect Printer",
+    "manage": "Model Management",
+    "visibility": "Visibility",
+    "private": "Private",
+    "public": "Public",
+    "deleteModel": "Delete Model",
+    "deleteConfirm": {
+      "title": "Confirm Delete",
+      "message": "Are you sure you want to delete this model? This action cannot be undone."
+    },
+    "deleteFailed": {
+      "title": "Delete Failed",
+      "message": "An error occurred while deleting the model"
+    },
+    "updateFailed": {
+      "title": "Update Failed",
+      "message": "An error occurred while updating model visibility"
+    }
+  },
+  "language": {
+    "title": "Language",
+    "chinese": "中文",
+    "english": "English",
+    "selectLanguage": "Select Language",
+    "auto": "Follow System",
+    "switchSuccess": "Language switched"
+  },
+  "dialog": {
+    "common": {
+      "title": "Notice",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "ok": "OK",
+      "retry": "Retry",
+      "close": "Close"
+    },
+    "auth": {
+      "requireLogin": "Please login first",
+      "gotoLogin": "Go to Login",
+      "loginFailed": "Login failed"
+    },
+    "error": {
+      "title": "Error",
+      "networkError": "Network connection failed, please check your network settings",
+      "loadFailed": "Loading failed, please try again later",
+      "operationFailed": "Operation failed",
+      "unknownError": "Unknown error"
+    },
+    "profile": {
+      "refreshFailed": "Failed to fetch user information, please check your network connection"
+    },
+    "interaction": {
+      "likeFailed": "Like failed, please try again later",
+      "favoriteFailed": "Favorite failed, please try again later"
+    },
+    "scanner": {
+      "title": "Scan Printer QR Code",
+      "requestingPermission": "Requesting camera permission...",
+      "needPermission": "Camera permission is required to scan QR codes",
+      "grantPermission": "Grant Permission",
+      "scanHint": "Place QR code inside the frame to scan",
+      "binding": "Binding printer...",
+      "confirmBind": "Confirm Binding",
+      "confirmBindMessage": "Device Name: {{deviceName}}\nBinding Code: {{code}}\n\nConfirm to bind this printer?",
+      "bindSuccess": "Printer bound successfully",
+      "bindFailed": "Binding failed",
+      "qrCodeError": "Invalid QR code format, please scan the correct printer QR code",
+      "rescan": "Rescan"
+    },
+    "printer": {
+      "operationFailed": "Operation Failed"
+    }
+  },
+  "error": {
+    "network": "Network connection problem, please check your network settings",
+    "server": "Server is temporarily busy, please try again later",
+    "unknown": "Operation failed, please try again"
+  },
+  "errorBoundary": {
+    "title": "Something Went Wrong",
+    "description": "Sorry, the app encountered an unexpected error.\nPlease try restarting the app or contact technical support.",
+    "details": "Error Details:",
+    "reload": "Reload"
+  },
+  "auth": {
+    "title": "Welcome",
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account with email verification code",
+      "tab": "Sign In",
+      "submit": "Sign In"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Create a new account with email verification code",
+      "tab": "Sign Up",
+      "submit": "Sign Up"
+    },
+    "email": {
+      "label": "Email Address",
+      "placeholder": "Enter your email",
+      "error": {
+        "required": "Please enter your email",
+        "invalid": "Please enter a valid email"
+      }
+    },
+    "code": {
+      "label": "Verification Code",
+      "placeholder": "Enter verification code",
+      "send": "Send Code",
+      "sending": "Sending...",
+      "resend": "Resend",
+      "countdown": "{{seconds}}s",
+      "error": {
+        "required": "Please enter verification code",
+        "invalid": "Code should be 4-6 characters"
+      }
+    },
+    "footer": {
+      "terms": "By signing in, you agree to our Terms of Service and Privacy Policy"
+    },
+    "error": {
+      "sendCodeFailed": "Failed to send code, please try again later",
+      "loginFailed": "Login failed, please check your email and code",
+      "registerFailed": "Registration failed, please check your email and code"
+    },
+    "success": {
+      "loginSuccess": "Login successful",
+      "registerSuccess": "Registration successful"
+    }
+  },
+  "taskProgress": {
+    "printed": "Printed",
+    "remaining": "Remaining",
+    "layer": "Layer {{current}} / {{total}}"
+  },
+  "style": {
+    "title": "Choose a style",
+    "realistic": "Realistic",
+    "cartoon": "Cartoon",
+    "lowpoly": "Low Poly",
+    "cyberpunk": "Cyberpunk",
+    "pixel": "Pixel Art",
+    "handdrawn": "Hand Drawn"
+  },
+  "examples": {
+    "title": "Try These Ideas",
+    "fox": {
+      "name": "Low Poly Fox",
+      "prompt": "A low poly fox sitting on a rock"
+    },
+    "city": {
+      "name": "Cyberpunk City",
+      "prompt": "Cyberpunk style futuristic city architecture"
+    },
+    "robot": {
+      "name": "Cute Robot",
+      "prompt": "Cute robot in cartoon style"
+    }
+  }
+}
