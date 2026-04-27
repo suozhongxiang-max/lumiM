@@ -285,22 +285,26 @@ export const ObjViewerWebView: React.FC<ViewerProps> = ({
     <View style={[styles.container, style]}>
       {/* 加载状态 */}
       {loading && showPlaceholder && (
-        <View style={[
-          styles.overlayContainer,
-          // 深色模式使用深色背景，亮色模式使用浅色背景
-          { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' }
-        ]}>
+        <View
+          style={[
+            styles.overlayContainer,
+            // 深色模式使用深色背景，亮色模式使用浅色背景
+            { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' },
+          ]}
+        >
           <LoadingPlaceholder />
         </View>
       )}
 
       {/* 错误状态 */}
       {error && (
-        <View style={[
-          styles.overlayContainer,
-          // 深色模式使用深色背景，亮色模式使用浅色背景
-          { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' }
-        ]}>
+        <View
+          style={[
+            styles.overlayContainer,
+            // 深色模式使用深色背景，亮色模式使用浅色背景
+            { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' },
+          ]}
+        >
           <ErrorFallback error={error} onRetry={handleRetry} />
         </View>
       )}

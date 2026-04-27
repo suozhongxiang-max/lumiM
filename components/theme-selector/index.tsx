@@ -4,7 +4,14 @@
  */
 
 import { useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/themed-text';
 import { FontSize, FontWeight, Spacing } from '@/constants/theme';
@@ -21,7 +28,12 @@ interface ThemeSelectorProps {
   onThemeChange?: (mode: ThemeMode) => Promise<void>;
 }
 
-export function ThemeSelector({ visible, onClose, isLoading = false, onThemeChange }: ThemeSelectorProps) {
+export function ThemeSelector({
+  visible,
+  onClose,
+  isLoading = false,
+  onThemeChange,
+}: ThemeSelectorProps) {
   const colorScheme = useColorScheme();
   const { t } = useI18n();
   const { themeMode, setThemeMode } = useThemeStore();
@@ -93,25 +105,30 @@ export function ThemeSelector({ visible, onClose, isLoading = false, onThemeChan
   ];
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       {/* 背景遮罩 */}
       <View style={[styles.overlay, { backgroundColor: colors.modalOverlay }]}>
-        <View style={[styles.modalContent, { backgroundColor: colors.modalBackground, paddingBottom: 24 + insets.bottom }]}>
+        <View
+          style={[
+            styles.modalContent,
+            { backgroundColor: colors.modalBackground, paddingBottom: 24 + insets.bottom },
+          ]}
+        >
           {/* 标题栏 */}
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View style={styles.titleContainer}>
-              <ThemedText style={[styles.title, { color: colors.text }]}>{t('appearance.title')}</ThemedText>
+              <ThemedText style={[styles.title, { color: colors.text }]}>
+                {t('appearance.title')}
+              </ThemedText>
               {isLoading && (
                 <ActivityIndicator size="small" color="#3B82F6" style={styles.titleLoading} />
               )}
             </View>
             {!isLoading && (
-              <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <TouchableOpacity
+                onPress={onClose}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             )}
@@ -120,19 +137,18 @@ export function ThemeSelector({ visible, onClose, isLoading = false, onThemeChan
 
           {/* 主题模式选择 */}
           <View style={[styles.section, { opacity: isLoading ? 0.5 : 1 }]}>
-            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>{t('appearance.themeMode')}</ThemedText>
+            <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+              {t('appearance.themeMode')}
+            </ThemedText>
             <View style={[styles.card, { backgroundColor: colors.card }]}>
-              {themeOptions.map((option) => {
+              {themeOptions.map(option => {
                 const isSelected = themeMode === option.mode;
                 const isCurrentItemLoading = isLoading && isSelected;
 
                 return (
                   <TouchableOpacity
                     key={option.mode}
-                    style={[
-                      styles.optionItem,
-                      { borderBottomColor: colors.border },
-                    ]}
+                    style={[styles.optionItem, { borderBottomColor: colors.border }]}
                     onPress={() => handleSelectMode(option.mode)}
                     activeOpacity={0.7}
                     disabled={isLoading}
@@ -164,7 +180,6 @@ export function ThemeSelector({ visible, onClose, isLoading = false, onThemeChan
               })}
             </View>
           </View>
-
         </View>
       </View>
     </Modal>

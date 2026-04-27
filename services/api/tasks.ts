@@ -69,6 +69,8 @@ export interface BackendGenerationTask {
   updatedAt: string;
   // 完成时间（可选）
   completedAt?: string | null;
+  // 后端直接返回的模型进度（0-100，可选）
+  modelProgress?: number;
   // 生成的图片列表（固定 4 张，首次创建时可能没有）
   images?: BackendGeneratedImage[];
   // 3D 模型信息（生成后才有）
@@ -77,6 +79,7 @@ export interface BackendGenerationTask {
     sourceImageId: string;
     name: string;
     modelUrl: string | null;
+    previewImageUrl?: string | null; // 模型预览图 URL
     format: 'OBJ' | 'GLB';
     fileSize?: number | null;
     completedAt?: string | null;
@@ -103,6 +106,26 @@ export interface CreateTaskRequest {
   prompt: string;
   // 用户上传的参考图片 URL 列表（可选）
   referenceImages?: string[];
+}
+
+/**
+ * 图生3D任务的图片数据
+ */
+export interface ImageTo3DImageData {
+  // 图片的 base64 数据
+  data: string;
+}
+
+/**
+ * 创建图生3D任务的请求参数
+ */
+export interface CreateImageTo3DRequest {
+  // 用户输入的文本描述（可选，用于增强模型生成）
+  prompt?: string;
+  // 任务类型
+  type: 'single';
+  // 图片数据列表（base64格式）
+  images: ImageTo3DImageData[];
 }
 
 /**
@@ -338,6 +361,51 @@ export async function deleteTask(taskId: string): Promise<ApiResult<void>> {
     logger.info('[API] 任务删除成功:', taskId);
   } else {
     logger.error('[API] 删除任务失败:', result.error.message);
+  }
+
+  return result;
+}
+
+/**
+ * 创建图生3D任务（直接从图片生成3D模型）
+ *
+ * @param prompt - 用户输入的文本描述（可选，用于增强模型生成）
+ * @param imageData - 图片的 base64 数据
+ * @returns API 响应结果
+ *
+ * @example
+ * const result = await createImageTo3DTask('一只可爱的猫咪', 'data:image/jpeg;base64,/9j/4AAQ...');
+ * if (result.success) {
+ *   console.log('图生3D任务创建成功:', result.data.id);
+ * }
+ */
+export async function createImageTo3DTask(
+  prompt: string,
+  imageData: string
+): Promise<ApiResult<BackendGenerationTask>> {
+  logger.info('[API] 创建图生3D任务:', { prompt, hasImage: !!imageData });
+
+  // 构建请求体
+  const requestBody: CreateImageTo3DRequest = {
+    prompt: prompt || '',
+    type: 'single',
+    images: [
+      {
+        data: imageData,
+      },
+    ],
+  };
+
+  // 调用 POST /api/tasks/image-to-3d
+  const result = await apiPost<BackendGenerationTask>(
+    API_ENDPOINTS.tasks.imageTo3D,
+    requestBody
+  );
+
+  if (result.success) {
+    logger.info('[API] 图生3D任务创建成功:', { taskId: result.data.id });
+  } else {
+    logger.error('[API] 图生3D任务创建失败:', result.error.message);
   }
 
   return result;

@@ -12,6 +12,7 @@ import type { GenerationTask } from '@/stores';
 import { useCreateStore } from '@/stores';
 import { logger } from '@/utils/logger';
 import { createImmersiveHeaderOptions } from '@/utils/navigation';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -34,6 +35,8 @@ export default function CreateHistoryDetailScreen() {
   const selectImage = useCreateStore(state => state.selectImage);
   const generateModel = useCreateStore(state => state.generateModel);
   const setStoreTask = useCreateStore(state => state.setStoreTask);
+  const startTaskSubscription = useCreateStore(state => state._startTaskSubscription);
+  const stopTaskSubscription = useCreateStore(state => state._stopTaskSubscription);
   const currentTask = useCreateStore(state => state.tasks.find(t => t.id === taskId) ?? null);
   // ==================== State ====================
   // const [currentTask, setTask] = useState<GenerationTask | null>(null);
@@ -68,13 +71,49 @@ export default function CreateHistoryDetailScreen() {
         logger.info('[CreateHistoryDetail] 任务详情加载成功:', {
           taskId,
           status: result.data.status,
+          phase: result.data.phase,
+          hasImages: !!result.data.images,
+          imageCount: result.data.images?.length || 0,
+          selectedImageIndex: result.data.selectedImageIndex,
+          hasModel: !!result.data.model,
         });
+
+        // 保留参考图片（图生3D任务需要）
+        const referenceImages = (result.data as any).referenceImages;
+
+        // 判断是否为图生3D任务的辅助条件
+        // 1. 有 referenceImages（最直接）
+        // 2. 没有 images 且 phase 是 MODEL_GENERATION（可能是图生3D）
+        // 3. selectedImageIndex 为 null 且状态是 MODEL_PENDING/MODEL_GENERATING
+        const hasReferenceImages = referenceImages && referenceImages.length > 0;
+        const isModelPhase = result.data.phase === 'MODEL_GENERATION';
+        const noImages = !result.data.images || result.data.images.length === 0;
+        const isModelGenerating = result.data.status === 'MODEL_PENDING' || result.data.status === 'MODEL_GENERATING';
+        const isSelectedIndexNull = result.data.selectedImageIndex === null;
+
+        // 综合判断是否为图生3D任务
+        const isImageTo3DTask = hasReferenceImages || (isModelPhase && noImages) || (isModelGenerating && isSelectedIndexNull && noImages);
+
+        logger.info('[CreateHistoryDetail] 图生3D任务判断:', {
+          hasReferenceImages,
+          isModelPhase,
+          noImages,
+          isModelGenerating,
+          isSelectedIndexNull,
+          isImageTo3DTask,
+        });
+
+        // 如果判定为图生3D任务但没有 referenceImages，添加标记
+        if (isImageTo3DTask && !referenceImages) {
+          (result.data as any).isImageTo3DTask = true;
+        }
 
         // 将后端数据转换为前端格式
         const frontendTask: GenerationTask = {
           id: result.data.id,
           prompt: result.data.originalPrompt,
-          status: mapBackendStatus(result.data.status),
+          referenceImages,
+          status: mapBackendStatus(result.data.status, isImageTo3DTask),
           createdAt: new Date(result.data.createdAt),
           updatedAt: new Date(result.data.updatedAt),
           images: result.data.images?.map(img => ({
@@ -88,12 +127,34 @@ export default function CreateHistoryDetailScreen() {
           })),
           selectedImageIndex: result.data.selectedImageIndex ?? undefined,
           imageProgress: calculateImageProgress(result.data.images),
-          // 模型数据
-          modelId: result.data.model?.id,
-          modelUrl: result.data.model?.modelUrl ?? undefined,
-          modelProgress: calculateModelProgress(result.data.model),
+          // 模型数据（保留后端对象结构）
+          model: result.data.model ? {
+            id: result.data.model.id,
+            sourceImageId: result.data.model.sourceImageId,
+            name: result.data.model.name,
+            modelUrl: result.data.model.modelUrl,
+            previewImageUrl: result.data.model.previewImageUrl,
+            format: result.data.model.format,
+            fileSize: result.data.model.fileSize,
+            completedAt: result.data.model.completedAt,
+            failedAt: result.data.model.failedAt,
+            errorMessage: result.data.model.errorMessage,
+            generationJob: result.data.model.generationJob,
+          } : undefined,
+          modelProgress: calculateModelProgress(result.data),
           error: result.data.model?.errorMessage ?? undefined,
         };
+
+        logger.info('[CreateHistoryDetail] 任务适配完成:', {
+          taskId: frontendTask.id,
+          backendStatus: result.data.status,
+          frontendStatus: frontendTask.status,
+          hasReferenceImages: !!frontendTask.referenceImages,
+          referenceImagesCount: frontendTask.referenceImages?.length || 0,
+          selectedImageIndex: frontendTask.selectedImageIndex,
+          hasModel: !!frontendTask.model,
+          modelPreviewImageUrl: frontendTask.model?.previewImageUrl,
+        });
         setStoreTask(taskId, frontendTask);
         // setTask(frontendTask);
       } catch (err) {
@@ -106,6 +167,25 @@ export default function CreateHistoryDetailScreen() {
 
     loadTaskDetail();
   }, [taskId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!taskId || !currentTask) {
+        return undefined;
+      }
+
+      logger.info('[CreateHistoryDetail] focus start task SSE subscription:', {
+        taskId,
+        status: currentTask.status,
+      });
+      startTaskSubscription(taskId);
+
+      return () => {
+        logger.info('[CreateHistoryDetail] blur stop task SSE subscription:', { taskId });
+        stopTaskSubscription(taskId);
+      };
+    }, [taskId, currentTask?.status, !!currentTask, startTaskSubscription, stopTaskSubscription])
+  );
 
   // ==================== 事件处理 ====================
   /**
@@ -171,9 +251,16 @@ export default function CreateHistoryDetailScreen() {
    * 处理查看 3D 模型
    */
   const handleView3D = () => {
-    if (!currentTask?.modelUrl || !currentTask?.modelId) return;
-    const encodedUrl = encodeURIComponent(currentTask.modelUrl);
-    router.push(`/model-viewer/${currentTask.modelId}?modelUrl=${encodedUrl}`);
+    if (!currentTask?.model?.modelUrl || !currentTask?.model?.id) {
+      logger.warn('[CreateHistoryDetail] 模型数据不完整，无法查看3D:', {
+        hasModel: !!currentTask?.model,
+        hasModelUrl: !!currentTask?.model?.modelUrl,
+        hasModelId: !!currentTask?.model?.id,
+      });
+      return;
+    }
+    const encodedUrl = encodeURIComponent(currentTask.model.modelUrl);
+    router.push(`/model-viewer/${currentTask.model.id}?modelUrl=${encodedUrl}`);
   };
 
   /**
@@ -255,27 +342,54 @@ export default function CreateHistoryDetailScreen() {
 /**
  * 后端任务状态映射到前端任务状态
  */
-function mapBackendStatus(backendStatus: string): GenerationTask['status'] {
+function mapBackendStatus(
+  backendStatus: string,
+  isImageTo3DTask: boolean = false
+): GenerationTask['status'] {
+  // 基础状态映射
+  let status: GenerationTask['status'];
   switch (backendStatus) {
     case 'IMAGE_PENDING':
     case 'IMAGE_GENERATING':
-      return 'generating_images';
+      status = 'generating_images';
+      break;
     case 'IMAGE_COMPLETED':
-      return 'images_ready';
+      status = 'images_ready';
+      break;
     case 'IMAGE_FAILED':
-      return 'failed';
+      status = 'failed';
+      break;
     case 'MODEL_PENDING':
     case 'MODEL_GENERATING':
-      return 'generating_model';
+      status = 'generating_model';
+      break;
     case 'MODEL_COMPLETED':
     case 'COMPLETED':
-      return 'model_ready';
+      status = 'model_ready';
+      break;
     case 'MODEL_FAILED':
-      return 'failed';
+      status = 'failed';
+      break;
     default:
       logger.warn('[CreateHistoryDetail] 未知的后端任务状态:', backendStatus);
-      return 'failed';
+      status = 'failed';
   }
+
+  // 图生3D任务特殊处理：只处理图片生成相关的状态，不处理模型相关状态
+  // 这样可以确保已完成的图生3D任务（MODEL_COMPLETED）正确显示为 model_ready
+  if (isImageTo3DTask) {
+    if (status === 'generating_images' || status === 'images_ready') {
+      logger.info('[CreateHistoryDetail] 图生3D任务，强制设置为模型生成中状态', {
+        backendStatus,
+        originalStatus: status,
+        newStatus: 'generating_model',
+      });
+      status = 'generating_model';
+    }
+    // 注意：model_ready 状态保持不变，这样已完成的任务会显示模型完成页面
+  }
+
+  return status;
 }
 
 /**
@@ -290,7 +404,14 @@ function calculateImageProgress(images?: any[]): number {
 /**
  * 计算 3D 模型生成进度（0-100）
  */
-function calculateModelProgress(model?: any): number {
+function calculateModelProgress(task?: any): number {
+  if (!task) return 0;
+
+  if (typeof task.modelProgress === 'number') {
+    return Math.min(Math.max(task.modelProgress, 0), 100);
+  }
+
+  const model = task.model;
   if (!model) return 0;
 
   // 如果模型已完成，进度为 100

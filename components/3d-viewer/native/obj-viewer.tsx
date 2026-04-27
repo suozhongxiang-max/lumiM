@@ -495,6 +495,18 @@ export const ObjViewer = forwardRef<ObjViewerInstance, ViewerProps>(
     const onContextCreate = async (gl: any) => {
       logger.info('GLView context created', 'ObjViewer');
 
+      if (!gl) {
+        const error = new Error('GL context is unavailable');
+        logger.error(
+          'GLView returned empty context. Check whether remote debugging is enabled or expo-gl context creation failed.',
+          error,
+          'ObjViewer'
+        );
+        setIsGlReady(false);
+        onErrorRef.current?.(error);
+        return;
+      }
+
       const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
 
       // 创建场景
@@ -731,11 +743,13 @@ export const ObjViewer = forwardRef<ObjViewerInstance, ViewerProps>(
       <View style={[styles.container, style]}>
         {/* 加载状态 - 显示到模型真正加载完成 */}
         {!isModelLoaded && (
-          <View style={[
-            styles.overlayContainer,
-            // 深色模式使用深色背景，亮色模式使用浅色背景
-            { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' }
-          ]}>
+          <View
+            style={[
+              styles.overlayContainer,
+              // 深色模式使用深色背景，亮色模式使用浅色背景
+              { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)' },
+            ]}
+          >
             {showPlaceholder && <LoadingPlaceholder />}
             {showProgress && modelLoader.state === 'loading' && (
               <ProgressBar progress={modelLoader.progress} />

@@ -52,9 +52,7 @@ const MENU_SECTIONS = [
     // { label: 'My Print Tasks', icon: 'print-outline', key: 'printTasks' },
     // { label: 'My Devices', icon: 'phone-portrait-outline', key: 'devices' },
   ],
-  [
-    { label: 'About', icon: 'information-circle-outline', key: 'about' },
-  ],
+  [{ label: 'About', icon: 'information-circle-outline', key: 'about' }],
 ];
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
@@ -108,24 +106,27 @@ export default function ProfileScreen() {
   }, [logout]);
 
   // 处理主题切换
-  const handleThemeChange = useCallback(async (mode: 'light' | 'dark' | 'auto') => {
-    logger.info('切换主题模式:', mode);
-    setIsThemeLoading(true);
+  const handleThemeChange = useCallback(
+    async (mode: 'light' | 'dark' | 'auto') => {
+      logger.info('切换主题模式:', mode);
+      setIsThemeLoading(true);
 
-    try {
-      // 模拟一个异步操作，让用户看到 loading 状态
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        // 模拟一个异步操作，让用户看到 loading 状态
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-      // 设置主题
-      setThemeMode(mode);
+        // 设置主题
+        setThemeMode(mode);
 
-      logger.info('主题切换成功');
-    } catch (error) {
-      logger.error('主题切换失败:', error);
-    } finally {
-      setIsThemeLoading(false);
-    }
-  }, [setThemeMode]);
+        logger.info('主题切换成功');
+      } catch (error) {
+        logger.error('主题切换失败:', error);
+      } finally {
+        setIsThemeLoading(false);
+      }
+    },
+    [setThemeMode]
+  );
 
   // 处理菜单项点击（带防抖）
   const navigateToMenuPage = useCallback((key: string) => {

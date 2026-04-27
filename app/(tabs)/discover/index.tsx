@@ -27,8 +27,8 @@ export default function DiscoverScreen() {
 
   // 从 Gallery Store 获取状态和方法
   const store = useGalleryStore();
-  const sort = useGalleryStore((state) => state.sort);
-  const setSort = useGalleryStore((state) => state.setSort);
+  const sort = useGalleryStore(state => state.sort);
+  const setSort = useGalleryStore(state => state.setSort);
 
   // ==================== 初始化加载 ====================
   /**

@@ -58,7 +58,7 @@ export function LoadingStateView({
   };
 
   // ==================== 状态判断和渲染 ====================
-  
+
   // 1. 加载中状态（首次加载，不是刷新）
   if (loading && !error && isEmpty) {
     return (

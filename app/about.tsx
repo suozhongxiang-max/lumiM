@@ -6,7 +6,15 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { ScreenWrapper } from '@/components/screen-wrapper';
 import { ThemedText } from '@/components/themed-text';
@@ -73,21 +81,17 @@ function AboutContent() {
       // const data = await response.json();
 
       // 模拟检查结果：显示已是最新版本
-      Alert.alert(
-        t('about.checkUpdate'),
-        t('about.latestVersion'),
-        [{ text: t('dialog.common.confirm') }]
-      );
+      Alert.alert(t('about.checkUpdate'), t('about.latestVersion'), [
+        { text: t('dialog.common.confirm') },
+      ]);
 
       logger.info('检查更新完成：已是最新版本');
     } catch (error) {
       // 发生错误时显示错误提示
       logger.error('检查更新失败:', error);
-      Alert.alert(
-        t('about.checkUpdate'),
-        t('about.checkUpdateFailed'),
-        [{ text: t('dialog.common.confirm') }]
-      );
+      Alert.alert(t('about.checkUpdate'), t('about.checkUpdateFailed'), [
+        { text: t('dialog.common.confirm') },
+      ]);
     } finally {
       // 恢复加载状态
       setIsCheckingUpdate(false);
@@ -113,9 +117,7 @@ function AboutContent() {
           </View>
 
           {/* App 名称 */}
-          <ThemedText style={[styles.appName, { color: colors.headerText }]}>
-            {appName}
-          </ThemedText>
+          <ThemedText style={[styles.appName, { color: colors.headerText }]}>{appName}</ThemedText>
 
           {/* 版本号 */}
           <ThemedText style={[styles.versionText, { color: colors.secondaryText }]}>

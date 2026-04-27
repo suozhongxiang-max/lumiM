@@ -162,22 +162,28 @@ export const ModelCard = React.memo(
                     : isDark
                       ? 'rgba(46, 125, 50, 0.25)' // 暗色模式墨绿色背景
                       : 'rgba(76, 175, 80, 0.25)', // 浅色模式绿色背景
-                }
+                },
               ]}
-              onPress={(e) => {
+              onPress={e => {
                 e.stopPropagation();
                 onToggleVisibility(modelId, !isPrivate);
               }}
               hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
             >
-              <Text style={[
-                styles.visibilityText,
-                {
-                  color: isPrivate
-                    ? (isDark ? '#FFFFFF' : '#666666') // 暗色模式白色，浅色模式中灰色
-                    : (isDark ? '#2E7D32' : '#4CAF50'), // 暗色模式墨绿色，浅色模式绿色
-                }
-              ]}>
+              <Text
+                style={[
+                  styles.visibilityText,
+                  {
+                    color: isPrivate
+                      ? isDark
+                        ? '#FFFFFF'
+                        : '#666666' // 暗色模式白色，浅色模式中灰色
+                      : isDark
+                        ? '#2E7D32'
+                        : '#4CAF50', // 暗色模式墨绿色，浅色模式绿色
+                  },
+                ]}
+              >
                 {isPrivate ? t('modelCard.private') : t('modelCard.public')}
               </Text>
             </TouchableOpacity>
@@ -209,14 +215,16 @@ export const ModelCard = React.memo(
         {showManageActions && onDelete && (
           <TouchableOpacity
             style={styles.deleteButtonFull}
-            onPress={(e) => {
+            onPress={e => {
               e.stopPropagation();
               onDelete(modelId);
             }}
             activeOpacity={0.8}
           >
             <Ionicons name="trash-outline" size={18} color="#ffffff" />
-            <Text style={styles.deleteButtonText}>{t('modelDetail.deleteModel') || '删除模型'}</Text>
+            <Text style={styles.deleteButtonText}>
+              {t('modelDetail.deleteModel') || '删除模型'}
+            </Text>
           </TouchableOpacity>
         )}
       </Pressable>

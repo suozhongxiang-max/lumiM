@@ -24,7 +24,7 @@ export interface ToastConfig {
 
 // 全局 Toast 状态
 let toastConfig: ToastConfig | null = null;
-let toastListeners: Array<(config: ToastConfig | null) => void> = [];
+let toastListeners: ((config: ToastConfig | null) => void)[] = [];
 
 /**
  * 显示 Toast

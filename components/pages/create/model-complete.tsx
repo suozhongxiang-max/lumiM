@@ -7,7 +7,16 @@ import { logger } from '@/utils/logger';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, Image, Platform, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import {
+  Animated,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
 
 const LIGHT_PALETTE = {
   background: '#F5F7FB',
@@ -80,8 +89,15 @@ export function ModelComplete({
 
   const selectedImage =
     task.images?.find(img => img.id === task.selectedImageId) ?? task.images?.[0];
-  const heroSource = selectedImage ? { uri: selectedImage.url || selectedImage.thumbnail } : null;
-  const modelFormat = (task.modelUrl?.split('.').pop() || 'OBJ').toUpperCase();
+
+  // 优先使用模型预览图，否则使用选中的图片
+  const heroSource = task.model?.previewImageUrl
+    ? { uri: task.model.previewImageUrl }
+    : selectedImage
+      ? { uri: selectedImage.url || selectedImage.thumbnail }
+      : null;
+
+  const modelFormat = (task.model?.modelUrl?.split('.').pop() || 'OBJ').toUpperCase();
 
   const stats = [
     { label: t('create.modelComplete.stats.format'), value: modelFormat },
@@ -90,29 +106,30 @@ export function ModelComplete({
   ];
 
   const handlePrint = () => {
-    logger.info('print model tapped', task.id);
+    logger.info('[ModelComplete] 打印按钮点击', {
+      taskId: task.id,
+      hasModel: !!task.model,
+      modelUrl: task.model?.modelUrl,
+      modelId: task.model?.id,
+    });
 
     // 检查是否有可用的打印机
     if (!printers || printers.length === 0) {
       // 没有打印机，显示提示
       logger.warn('[ModelComplete] 没有可用的打印机');
-      Alert.alert(
-        t('create.modelComplete.print'),
-        t('modelDetail.noPrinter'),
-        [
-          {
-            text: t('dialog.common.cancel'),
-            style: 'cancel',
+      Alert.alert(t('create.modelComplete.print'), t('modelDetail.noPrinter'), [
+        {
+          text: t('dialog.common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('modelDetail.connectPrinter'),
+          onPress: () => {
+            // 跳转到打印机页面
+            router.push('/(tabs)/printer');
           },
-          {
-            text: t('modelDetail.connectPrinter'),
-            onPress: () => {
-              // 跳转到打印机页面
-              router.push('/(tabs)/printer');
-            },
-          },
-        ]
-      );
+        },
+      ]);
       return;
     }
 
@@ -180,7 +197,16 @@ export function ModelComplete({
         {/* 主要操作按钮 - 横向排布 */}
         <View style={styles.primaryActionsRow}>
           <TouchableOpacity
-            onPress={onView3D}
+            onPress={() => {
+              logger.info('[ModelComplete] 预览3D按钮点击', {
+                taskId: task.id,
+                hasModel: !!task.model,
+                hasModelUrl: !!task.model?.modelUrl,
+                hasModelId: !!task.model?.id,
+                hasOnView3D: !!onView3D,
+              });
+              onView3D?.();
+            }}
             activeOpacity={0.9}
             style={[styles.previewButtonWrapper, { flex: 2 }]}
           >

@@ -141,6 +141,14 @@
     "tip": "Tip: Tap tags to auto-fill sample descriptions",
     "generating": "Generating...",
     "generateImage": "Generate Image",
+    "generateImageWithPoints": "Generate Image (2 Points)",
+    "generateModel": "Generate Model",
+    "generateModelWithPoints": "Generate Model (2 Points)",
+    "generateModelFromImageWithPoints": "Generate 3D Model (5 Points)",
+    "points": {
+      "2": "2 Points",
+      "5": "5 Points"
+    },
     "generateFailed": "Generation Failed",
     "restart": "Start Over",
     "regenerate": "Regenerate",
@@ -188,7 +196,8 @@
       "title": "AI Image Selection",
       "generating": "Please wait, generating new preview images",
       "selectHint": "Please select the image that best meets your requirements",
-      "generate3D": "Generate 3D Model"
+      "generate3D": "Generate 3D Model",
+      "consumePoints": "2 Points"
     },
     "modelGenerating": {
       "title": "3D Model Generation",

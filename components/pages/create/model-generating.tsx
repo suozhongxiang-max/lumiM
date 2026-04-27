@@ -4,7 +4,7 @@ import { useI18n } from '@/hooks/use-i18n';
 import type { GenerationTask } from '@/stores/create/types';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Image, Platform, StyleSheet, Text, View } from 'react-native';
 
 const LIGHT_UI = {
   background: '#F5F7FB',
@@ -44,6 +44,13 @@ export function ModelGenerating({ task, paddingBottom, isDark }: ModelGenerating
   const progress = task.modelProgress || 0;
   const gradientColors: [string, string] = isDark ? ['#3B82F6', '#6366F1'] : ['#2680FF', '#5A8BFF'];
   const primaryShadow = gradientColors[0];
+
+  // 获取预览图：优先使用模型预览图，否则使用参考图片
+  const previewImageSource = task.model?.previewImageUrl
+    ? { uri: task.model.previewImageUrl }
+    : task.referenceImages && task.referenceImages.length > 0
+      ? { uri: task.referenceImages[0] }
+      : null;
 
   // 淡入动画
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -114,37 +121,54 @@ export function ModelGenerating({ task, paddingBottom, isDark }: ModelGenerating
 
       {/* 中心内容区 */}
       <Animated.View style={[styles.centerContainer, { opacity: fadeAnim }]}>
-        {/* 旋转立方体 */}
-        <Animated.View
-          style={[
-            styles.cubeWrapper,
-            {
-              transform: [{ scale: pulseValue }, { rotate: cubeRotation }],
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={gradientColors}
+        {/* 图片预览或旋转立方体 */}
+        {previewImageSource ? (
+          <Animated.View
             style={[
-              styles.cubeGradient,
-              Platform.select({
-                ios: {
-                  shadowColor: primaryShadow,
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 20,
-                },
-                android: {
-                  elevation: 12,
-                },
-              }),
+              styles.previewImageWrapper,
+              {
+              transform: [{ scale: pulseValue }],
+              },
             ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
           >
-            <IconSymbol name="cube.fill" size={64} color="#FFFFFF" />
-          </LinearGradient>
-        </Animated.View>
+            <Image
+              source={previewImageSource}
+              style={styles.previewImage}
+              resizeMode="cover"
+            />
+          </Animated.View>
+        ) : (
+          <Animated.View
+            style={[
+              styles.cubeWrapper,
+              {
+                transform: [{ scale: pulseValue }, { rotate: cubeRotation }],
+              },
+            ]}
+          >
+            <LinearGradient
+              colors={gradientColors}
+              style={[
+                styles.cubeGradient,
+                Platform.select({
+                  ios: {
+                    shadowColor: primaryShadow,
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.4,
+                    shadowRadius: 20,
+                  },
+                  android: {
+                    elevation: 12,
+                  },
+                }),
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <IconSymbol name="cube.fill" size={64} color="#FFFFFF" />
+            </LinearGradient>
+          </Animated.View>
+        )}
 
         {/* 进度百分比 */}
         <Text style={[styles.progressPercent, { color: textColor }]}>{progress}%</Text>
@@ -234,6 +258,31 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl, // 大圆角
     justifyContent: 'center', // 水平居中
     alignItems: 'center', // 垂直居中
+  },
+
+  // 预览图包裹器
+  previewImageWrapper: {
+    width: 200, // 宽度
+    height: 200, // 高度
+    borderRadius: BorderRadius.xl, // 大圆角
+    overflow: 'hidden', // 隐藏溢出
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+
+  // 预览图
+  previewImage: {
+    width: '100%',
+    height: '100%',
   },
 
   // 进度百分比

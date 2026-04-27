@@ -1,3 +1,5 @@
+import type { SseSubscription } from '@/services/sse';
+
 // 任务状态类型（前端使用）
 export type TaskStatus =
   | 'generating_images' // 正在生成图片
@@ -27,6 +29,30 @@ export interface GeneratedImage {
   thumbnail?: string;
 }
 
+// 3D模型信息接口（与后端保持一致）
+export interface ModelInfo {
+  id: string;
+  sourceImageId: string;
+  name: string;
+  modelUrl: string | null;
+  previewImageUrl?: string | null; // 模型预览图 URL
+  format: 'OBJ' | 'GLB';
+  fileSize?: number | null;
+  completedAt?: string | null;
+  failedAt?: string | null;
+  errorMessage?: string | null;
+  // 模型生成任务信息（用于获取进度）
+  generationJob?: {
+    id: string;
+    status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'TIMEOUT';
+    progress: number; // 0-100
+    startedAt?: string | null;
+    completedAt?: string | null;
+    failedAt?: string | null;
+    errorMessage?: string | null;
+  };
+}
+
 // 生成任务接口（扩展后端字段）
 export interface GenerationTask {
   // 任务 ID
@@ -50,10 +76,9 @@ export interface GenerationTask {
   selectedImageId?: string;
   selectedImageIndex?: number; // 选择的图片索引（0-3）
 
-  // 3D模型生成阶段
-  modelUrl?: string;
+  // 3D模型信息（保留后端对象结构）
+  model?: ModelInfo;
   modelProgress?: number; // 0-100（前端计算或后端返回）
-  modelId?: string; // 3D 模型 ID（后端返回）
 
   // 错误信息
   error?: string;
@@ -67,12 +92,12 @@ export interface CreateState {
   // 历史任务列表
   tasks: GenerationTask[];
 
-  // 轮询定时器 Map（每个任务独立管理）
-  // 使用 ReturnType<typeof setInterval> 兼容 Node.js 和浏览器环境
-  pollingIntervals: Map<string, ReturnType<typeof setInterval>>;
+  // SSE 订阅实例（每个任务独立管理）
+  taskSubscriptions: Map<string, SseSubscription>;
 
   // 操作方法
   createTask: (prompt: string, referenceImages?: string[]) => Promise<string>; // 返回taskId，支持传入参考图片数组
+  createImageTo3DTask: (prompt: string, imageData: string) => Promise<string>; // 创建图生3D任务，直接从图片生成3D模型
   selectImage: (taskId: string, imageId: string) => Promise<void>;
   generateModel: (taskId: string) => Promise<void>;
   cancelTask: (taskId: string) => void;
@@ -81,9 +106,9 @@ export interface CreateState {
   setStoreTask: (taskId: string, task: GenerationTask) => void; // 更新任务信息
   // 内部方法（不建议外部直接调用）
   _updateTaskProgress: (taskId: string, progress: Partial<GenerationTask>) => void;
-  _startPolling: (taskId: string) => void; // 启动轮询
-  _stopPolling: (taskId: string) => void; // 停止指定任务的轮询
-  _stopAllPolling: () => void; // 停止所有轮询
+  _startTaskSubscription: (taskId: string) => void; // 启动任务 SSE 订阅
+  _stopTaskSubscription: (taskId: string) => void; // 停止指定任务 SSE 订阅
+  _stopAllTaskSubscriptions: () => void; // 停止所有任务 SSE 订阅
 
   // 重置状态
   reset: () => void;

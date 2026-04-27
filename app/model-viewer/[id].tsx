@@ -268,7 +268,9 @@ export default function ModelViewer3DScreen() {
           activeOpacity={0.7}
         >
           <IconSymbol name="chevron.left" size={32} color={isDark ? '#FFFFFF' : '#4e4d4d'} />
-          <Text style={[styles.backButtonText, { color: isDark ? '#FFFFFF' : '#4e4d4d' }]}>{t('modelViewer.back')}</Text>
+          <Text style={[styles.backButtonText, { color: isDark ? '#FFFFFF' : '#4e4d4d' }]}>
+            {t('modelViewer.back')}
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
 

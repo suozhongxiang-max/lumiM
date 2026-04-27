@@ -302,17 +302,31 @@ export function ImageGenerating({
                   end={{ x: 1, y: 0 }}
                   style={styles.primaryButton}
                 >
-                  <IconSymbol name="cube.fill" size={18} color="#FFFFFF" />
-                  <Text style={styles.primaryButtonText}>
-                    {t('create.imageSelection.generate3D')}
-                  </Text>
+                  <View style={styles.buttonContentVertical}>
+                    <View style={styles.buttonTopRow}>
+                      <IconSymbol name="cube.fill" size={18} color="#FFFFFF" />
+                      <Text style={styles.primaryButtonText}>
+                        {t('create.imageSelection.generate3D')}
+                      </Text>
+                    </View>
+                    <Text style={styles.pointsText}>
+                      {t('create.points.2')}
+                    </Text>
+                  </View>
                 </LinearGradient>
               ) : (
                 <View style={[styles.primaryButton, { backgroundColor: palette.disabled }]}>
-                  <IconSymbol name="cube.fill" size={18} color="#FFFFFF" />
-                  <Text style={styles.primaryButtonText}>
-                    {t('create.imageSelection.generate3D')}
-                  </Text>
+                  <View style={styles.buttonContentVertical}>
+                    <View style={styles.buttonTopRow}>
+                      <IconSymbol name="cube.fill" size={18} color="#FFFFFF" />
+                      <Text style={styles.primaryButtonText}>
+                        {t('create.imageSelection.generate3D')}
+                      </Text>
+                    </View>
+                    <Text style={styles.pointsText}>
+                      {t('create.points.2')}
+                    </Text>
+                  </View>
                 </View>
               )}
             </TouchableOpacity>
@@ -471,14 +485,35 @@ const styles = StyleSheet.create({
   primaryButton: {
     borderRadius: BorderRadius.full,
     paddingVertical: 16,
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
+  // 纵向按钮内容容器
+  buttonContentVertical: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  // 按钮顶部行（图标+文字）
+  buttonTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
   primaryButtonText: {
     color: '#FFFFFF',
     fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+  },
+  // 积分文字样式（黄色）
+  pointsText: {
+    color: '#FFD700', // 金黄色
+    fontSize: FontSize.xs,
     fontWeight: FontWeight.semibold,
   },
 });

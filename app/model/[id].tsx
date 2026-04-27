@@ -101,23 +101,19 @@ export default function ModelDetailScreen() {
     if (!printers || printers.length === 0) {
       // 没有打印机，显示提示
       logger.warn('[ModelDetail] 没有可用的打印机');
-      Alert.alert(
-        t('modelDetail.print'),
-        t('modelDetail.noPrinter'),
-        [
-          {
-            text: t('dialog.common.cancel'),
-            style: 'cancel',
+      Alert.alert(t('modelDetail.print'), t('modelDetail.noPrinter'), [
+        {
+          text: t('dialog.common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('modelDetail.connectPrinter'),
+          onPress: () => {
+            // 跳转到打印机页面
+            router.push('/(tabs)/printer');
           },
-          {
-            text: t('modelDetail.connectPrinter'),
-            onPress: () => {
-              // 跳转到打印机页面
-              router.push('/(tabs)/printer');
-            },
-          },
-        ]
-      );
+        },
+      ]);
       return;
     }
 
@@ -127,41 +123,46 @@ export default function ModelDetailScreen() {
   }, [printers, t, router]);
 
   // 处理私有/公开切换
-  const handleTogglePrivate = useCallback(async (isPrivate: boolean) => {
-    if (!model) return;
+  const handleTogglePrivate = useCallback(
+    async (isPrivate: boolean) => {
+      if (!model) return;
 
-    try {
-      setUpdating(true);
-      const newVisibility: ModelVisibility = isPrivate ? 'PRIVATE' : 'PUBLIC';
+      try {
+        setUpdating(true);
+        const newVisibility: ModelVisibility = isPrivate ? 'PRIVATE' : 'PUBLIC';
 
-      logger.info('[ModelDetail] 切换模型可见性:', { modelId: model.id, newVisibility });
+        logger.info('[ModelDetail] 切换模型可见性:', { modelId: model.id, newVisibility });
 
-      const result = await updateModelVisibility(model.id, newVisibility);
+        const result = await updateModelVisibility(model.id, newVisibility);
 
-      if (result.success) {
-        // 更新本地模型数据
-        setModel(prev => prev ? { ...prev, visibility: newVisibility } : null);
-        logger.info('[ModelDetail] 模型可见性已更新');
-      } else {
+        if (result.success) {
+          // 更新本地模型数据
+          setModel(prev => (prev ? { ...prev, visibility: newVisibility } : null));
+          logger.info('[ModelDetail] 模型可见性已更新');
+        } else {
+          Alert.alert(
+            t('modelDetail.updateFailed.title') || '更新失败',
+            result.error.message ||
+              t('modelDetail.updateFailed.message') ||
+              '更新模型可见性时发生错误'
+          );
+          // 恢复开关状态
+          setModel(prev => prev);
+        }
+      } catch (error) {
+        logger.error('[ModelDetail] 更新模型可见性失败:', error);
         Alert.alert(
           t('modelDetail.updateFailed.title') || '更新失败',
-          result.error.message || t('modelDetail.updateFailed.message') || '更新模型可见性时发生错误'
+          t('modelDetail.updateFailed.message') || '更新模型可见性时发生错误'
         );
         // 恢复开关状态
         setModel(prev => prev);
+      } finally {
+        setUpdating(false);
       }
-    } catch (error) {
-      logger.error('[ModelDetail] 更新模型可见性失败:', error);
-      Alert.alert(
-        t('modelDetail.updateFailed.title') || '更新失败',
-        t('modelDetail.updateFailed.message') || '更新模型可见性时发生错误'
-      );
-      // 恢复开关状态
-      setModel(prev => prev);
-    } finally {
-      setUpdating(false);
-    }
-  }, [model, t]);
+    },
+    [model, t]
+  );
 
   // 处理删除模型
   const handleDelete = useCallback(async () => {

@@ -47,10 +47,14 @@ export const API_ENDPOINTS = {
     list: '/api/tasks',
     // 创建文生图任务
     create: '/api/tasks',
+    // 创建图生3D任务（直接从图片生成3D模型）
+    imageTo3D: '/api/tasks/image-to-3d',
     // 查询任务详情
     detail: (id: string) => `/api/tasks/${id}`,
     // 查询任务状态（支持 since 参数实现 HTTP 304 优化）
     status: (id: string) => `/api/tasks/${id}/status`,
+    // SSE 任务事件流
+    events: (id: string) => `/api/tasks/${id}/events`,
     // 选择图片生成 3D 模型
     selectImage: (id: string) => `/api/tasks/${id}`,
   },

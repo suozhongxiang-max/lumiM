@@ -141,6 +141,11 @@
     "tip": "小提示：点击标签即可自动填入示例描述",
     "generating": "生成中…",
     "generateImage": "生成图片",
+    "generateModel": "生成模型",
+    "points": {
+      "2": "消耗2积分",
+      "5": "消耗5积分"
+    },
     "generateFailed": "生成失败",
     "restart": "重新开始",
     "regenerate": "重新生成",
@@ -188,7 +193,7 @@
       "title": "AI 图像选择",
       "generating": "请稍候，正在生成新的预览图",
       "selectHint": "请选择一张最符合需求的图",
-      "generate3D": "生成 3D 模型"
+      "generate3D": "生成3D模型"
     },
     "modelGenerating": {
       "title": "3D 模型生成中",

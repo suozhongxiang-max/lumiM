@@ -42,436 +42,439 @@ const formatFileSize = (bytes: number | null | undefined): string => {
   return `${mb.toFixed(1)} MB`;
 };
 
-export const ModelDetail = React.memo(({
-  model,
-  onPrint,
-  on3DPreview,
-  onTogglePrivate,
-  onDelete
-}: ModelDetailProps) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme.isDark;
-  const router = useRouter();
-  const { t } = useI18n();
+export const ModelDetail = React.memo(
+  ({ model, onPrint, on3DPreview, onTogglePrivate, onDelete }: ModelDetailProps) => {
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme.isDark;
+    const router = useRouter();
+    const { t } = useI18n();
 
-  // 私有/公开切换状态
-  const [isPrivate, setIsPrivate] = useState(model.visibility === 'PRIVATE');
+    // 私有/公开切换状态
+    const [isPrivate, setIsPrivate] = useState(model.visibility === 'PRIVATE');
 
-  // 检查是否是模型的所有者
-  const isOwner = useAuthStore(state => state.user?.id === model.externalUserId);
+    // 检查是否是模型的所有者
+    const isOwner = useAuthStore(state => state.user?.id === model.externalUserId);
 
-  // 获取用户认证状态
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    // 获取用户认证状态
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
-  // 使用 ref 来跟踪防抖状态
-  const lastLikeTimeRef = useRef<number>(0);
-  const lastFavoriteTimeRef = useRef<number>(0);
-  const DEBOUNCE_DELAY = 300; // 300ms 防抖延迟
+    // 使用 ref 来跟踪防抖状态
+    const lastLikeTimeRef = useRef<number>(0);
+    const lastFavoriteTimeRef = useRef<number>(0);
+    const DEBOUNCE_DELAY = 300; // 300ms 防抖延迟
 
-  // 使用交互 Hook 管理点赞和收藏状态
-  const {
-    isLiked,
-    isFavorited,
-    currentLikes,
-    currentFavorites,
-    isLoading,
-    handleLike,
-    handleFavorite,
-  } = useModelInteraction({
-    modelId: model.id,
-    initialLikes: model.likeCount,
-    initialFavorites: model.favoriteCount,
-    isAuthenticated,
-    onRequireLogin: () => {
-      // 跳转到登录页
-      router.push('/login');
-    },
-  });
-
-  // 处理点赞按钮点击（带防抖）
-  const handleLikePress = useCallback(() => {
-    const now = Date.now();
-
-    // 防抖：如果距离上次点击时间太短，忽略
-    if (now - lastLikeTimeRef.current < DEBOUNCE_DELAY) {
-      return;
-    }
-
-    // 更新最后点击时间
-    lastLikeTimeRef.current = now;
-
-    // 先调用 handleLike，再触发触觉反馈（避免异步问题）
-    handleLike();
-    // 触觉反馈使用 Promise.catch() 避免阻塞
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(error => {
-      // 忽略触觉反馈错误
+    // 使用交互 Hook 管理点赞和收藏状态
+    const {
+      isLiked,
+      isFavorited,
+      currentLikes,
+      currentFavorites,
+      isLoading,
+      handleLike,
+      handleFavorite,
+    } = useModelInteraction({
+      modelId: model.id,
+      initialLikes: model.likeCount,
+      initialFavorites: model.favoriteCount,
+      isAuthenticated,
+      onRequireLogin: () => {
+        // 跳转到登录页
+        router.push('/login');
+      },
     });
-  }, [handleLike]);
 
-  // 处理收藏按钮点击（带防抖）
-  const handleFavoritePress = useCallback(() => {
-    const now = Date.now();
+    // 处理点赞按钮点击（带防抖）
+    const handleLikePress = useCallback(() => {
+      const now = Date.now();
 
-    // 防抖：如果距离上次点击时间太短，忽略
-    if (now - lastFavoriteTimeRef.current < DEBOUNCE_DELAY) {
-      return;
-    }
+      // 防抖：如果距离上次点击时间太短，忽略
+      if (now - lastLikeTimeRef.current < DEBOUNCE_DELAY) {
+        return;
+      }
 
-    // 更新最后点击时间
-    lastFavoriteTimeRef.current = now;
+      // 更新最后点击时间
+      lastLikeTimeRef.current = now;
 
-    // 先调用 handleFavorite，再触发触觉反馈（避免异步问题）
-    handleFavorite();
-    // 触觉反馈使用 Promise.catch() 避免阻塞
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(error => {
-      // 忽略触觉反馈错误
-    });
-  }, [handleFavorite]);
+      // 先调用 handleLike，再触发触觉反馈（避免异步问题）
+      handleLike();
+      // 触觉反馈使用 Promise.catch() 避免阻塞
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(error => {
+        // 忽略触觉反馈错误
+      });
+    }, [handleLike]);
 
-  // 处理一键打印（带防抖）
-  const executePrint = useCallback(() => {
-    logger.info('一键打印模型:', model.name);
-    onPrint?.();
-  }, [model.name, onPrint]);
+    // 处理收藏按钮点击（带防抖）
+    const handleFavoritePress = useCallback(() => {
+      const now = Date.now();
 
-  const handlePrintDebounced = useNavigationDebounce(executePrint, { delay: 300 });
+      // 防抖：如果距离上次点击时间太短，忽略
+      if (now - lastFavoriteTimeRef.current < DEBOUNCE_DELAY) {
+        return;
+      }
 
-  // 处理 3D 预览（带防抖）
-  const execute3DPreview = useCallback(() => {
-    logger.info('预览 3D 模型:', model.name);
-    on3DPreview?.();
-  }, [model.name, on3DPreview]);
+      // 更新最后点击时间
+      lastFavoriteTimeRef.current = now;
 
-  const handle3DPreviewDebounced = useNavigationDebounce(execute3DPreview, { delay: 300 });
+      // 先调用 handleFavorite，再触发触觉反馈（避免异步问题）
+      handleFavorite();
+      // 触觉反馈使用 Promise.catch() 避免阻塞
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(error => {
+        // 忽略触觉反馈错误
+      });
+    }, [handleFavorite]);
 
-  // 处理私有/公开切换
-  const handleTogglePrivacy = useCallback((value: boolean) => {
-    setIsPrivate(value);
-    onTogglePrivate?.(value);
-    logger.info('模型可见性已切换:', { modelId: model.id, isPrivate: value });
-  }, [model.id, onTogglePrivate]);
+    // 处理一键打印（带防抖）
+    const executePrint = useCallback(() => {
+      logger.info('一键打印模型:', model.name);
+      onPrint?.();
+    }, [model.name, onPrint]);
 
-  // 处理删除模型
-  const handleDelete = useCallback(() => {
-    Alert.alert(
-      t('modelDetail.deleteConfirm.title') || '确认删除',
-      t('modelDetail.deleteConfirm.message') || '确定要删除这个模型吗？此操作无法撤销。',
-      [
-        {
-          text: t('dialog.common.cancel') || '取消',
-          style: 'cancel',
-        },
-        {
-          text: t('dialog.common.confirm') || '删除',
-          style: 'destructive',
-          onPress: () => {
-            onDelete?.();
-            logger.info('模型已删除:', model.id);
-          },
-        },
-      ]
+    const handlePrintDebounced = useNavigationDebounce(executePrint, { delay: 300 });
+
+    // 处理 3D 预览（带防抖）
+    const execute3DPreview = useCallback(() => {
+      logger.info('预览 3D 模型:', model.name);
+      on3DPreview?.();
+    }, [model.name, on3DPreview]);
+
+    const handle3DPreviewDebounced = useNavigationDebounce(execute3DPreview, { delay: 300 });
+
+    // 处理私有/公开切换
+    const handleTogglePrivacy = useCallback(
+      (value: boolean) => {
+        setIsPrivate(value);
+        onTogglePrivate?.(value);
+        logger.info('模型可见性已切换:', { modelId: model.id, isPrivate: value });
+      },
+      [model.id, onTogglePrivate]
     );
-  }, [t, model.id, onDelete]);
 
-  // 预计算样式
-  const dynamicStyles = useMemo(
-    () => ({
-      card: {
-        backgroundColor: isDark ? Colors.dark.cardBackground : Colors.light.cardBackground,
-        elevation: 4,
-      },
-      // 主要按钮：浅色模式使用蓝色，深色模式使用暗一点的蓝色
-      primaryButton: {
-        backgroundColor: isDark ? '#0a5c84' : '#0a7ea4', // 深色模式使用暗蓝色，浅色模式使用标准蓝色
-        elevation: 4,
-      },
-      secondaryButton: {
-        backgroundColor: isDark ? 'rgba(74, 144, 226, 0.15)' : 'rgba(0, 122, 255, 0.08)',
-        borderColor: isDark ? '#4a90e2' : '#0a7ea4', // 按钮边框也使用一致的蓝色系
-      },
-    }),
-    [isDark]
-  );
+    // 处理删除模型
+    const handleDelete = useCallback(() => {
+      Alert.alert(
+        t('modelDetail.deleteConfirm.title') || '确认删除',
+        t('modelDetail.deleteConfirm.message') || '确定要删除这个模型吗？此操作无法撤销。',
+        [
+          {
+            text: t('dialog.common.cancel') || '取消',
+            style: 'cancel',
+          },
+          {
+            text: t('dialog.common.confirm') || '删除',
+            style: 'destructive',
+            onPress: () => {
+              onDelete?.();
+              logger.info('模型已删除:', model.id);
+            },
+          },
+        ]
+      );
+    }, [t, model.id, onDelete]);
 
-  // 转换图片URL为绝对路径
-  const absoluteImageUrl = useMemo(
-    () => getImageUrl(model.previewImageUrl),
-    [model.previewImageUrl]
-  );
+    // 预计算样式
+    const dynamicStyles = useMemo(
+      () => ({
+        card: {
+          backgroundColor: isDark ? Colors.dark.cardBackground : Colors.light.cardBackground,
+          elevation: 4,
+        },
+        // 主要按钮：浅色模式使用蓝色，深色模式使用暗一点的蓝色
+        primaryButton: {
+          backgroundColor: isDark ? '#0a5c84' : '#0a7ea4', // 深色模式使用暗蓝色，浅色模式使用标准蓝色
+          elevation: 4,
+        },
+        secondaryButton: {
+          backgroundColor: isDark ? 'rgba(74, 144, 226, 0.15)' : 'rgba(0, 122, 255, 0.08)',
+          borderColor: isDark ? '#4a90e2' : '#0a7ea4', // 按钮边框也使用一致的蓝色系
+        },
+      }),
+      [isDark]
+    );
 
-  return (
-    <ThemedView style={styles.container}>
-      {/* 状态栏 */}
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-        translucent
-      />
+    // 转换图片URL为绝对路径
+    const absoluteImageUrl = useMemo(
+      () => getImageUrl(model.previewImageUrl),
+      [model.previewImageUrl]
+    );
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* 主图 */}
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: absoluteImageUrl }} style={styles.mainImage} resizeMode="cover" />
+    return (
+      <ThemedView style={styles.container}>
+        {/* 状态栏 */}
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor="transparent"
+          translucent
+        />
 
-          {/* 图片遮罩层：仅在深色模式下显示，使白色背景变暗 */}
-          {isDark && <View style={styles.imageOverlay} />}
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          {/* 主图 */}
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: absoluteImageUrl }} style={styles.mainImage} resizeMode="cover" />
 
-          {/* 3D 预览按钮 */}
-          <View style={styles.previewButtonContainer}>
-            <TouchableOpacity
-              style={styles.previewButtonWrapper}
-              onPress={() => handle3DPreviewDebounced()}
-              activeOpacity={0.9}
-            >
-              {/* 按钮背景光晕效果 */}
-              <View
-                style={[
-                  styles.previewButtonGlow,
-                  {
-                    backgroundColor: isDark ? 'rgba(10, 92, 132, 0.4)' : 'rgba(10, 126, 164, 0.3)',
-                  },
-                ]}
-              />
-              {/* 主按钮 */}
-              <View
-                style={[
-                  styles.previewButton,
-                  {
-                    backgroundColor: isDark ? '#0a5c84' : '#0a7ea4', // 深色模式使用暗蓝色，浅色模式使用标准蓝色
-                  },
-                ]}
+            {/* 图片遮罩层：仅在深色模式下显示，使白色背景变暗 */}
+            {isDark && <View style={styles.imageOverlay} />}
+
+            {/* 3D 预览按钮 */}
+            <View style={styles.previewButtonContainer}>
+              <TouchableOpacity
+                style={styles.previewButtonWrapper}
+                onPress={() => handle3DPreviewDebounced()}
+                activeOpacity={0.9}
               >
-                <IconSymbol name="cube" size={22} color="#fff" />
-                <Text style={styles.previewButtonText}>{t('modelDetail.preview3D')}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* 内容区域 */}
-        <View style={styles.content}>
-          {/* 标题 */}
-          <ThemedText style={styles.title}>{model.name}</ThemedText>
-
-          {/* 创作者信息 */}
-          <View style={styles.creatorSection}>
-            <View style={styles.creatorInfo}>
-              <View
-                style={[
-                  styles.avatar,
-                  { backgroundColor: isDark ? '#0a5c84' : '#0a7ea4' }, // 深色模式使用暗蓝色，浅色模式使用标准蓝色
-                ]}
-              >
-                <Text style={styles.avatarText}>
-                  {(model.user?.name || 'A').charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <ThemedText style={styles.creatorName}>
-                {model.user?.name || t('modelDetail.anonymousUser')}
-              </ThemedText>
+                {/* 按钮背景光晕效果 */}
+                <View
+                  style={[
+                    styles.previewButtonGlow,
+                    {
+                      backgroundColor: isDark
+                        ? 'rgba(10, 92, 132, 0.4)'
+                        : 'rgba(10, 126, 164, 0.3)',
+                    },
+                  ]}
+                />
+                {/* 主按钮 */}
+                <View
+                  style={[
+                    styles.previewButton,
+                    {
+                      backgroundColor: isDark ? '#0a5c84' : '#0a7ea4', // 深色模式使用暗蓝色，浅色模式使用标准蓝色
+                    },
+                  ]}
+                >
+                  <IconSymbol name="cube" size={22} color="#fff" />
+                  <Text style={styles.previewButtonText}>{t('modelDetail.preview3D')}</Text>
+                </View>
+              </TouchableOpacity>
             </View>
+          </View>
 
-            {/* Follow 按钮暂时隐藏，功能待开发 */}
-            {/* <TouchableOpacity
+          {/* 内容区域 */}
+          <View style={styles.content}>
+            {/* 标题 */}
+            <ThemedText style={styles.title}>{model.name}</ThemedText>
+
+            {/* 创作者信息 */}
+            <View style={styles.creatorSection}>
+              <View style={styles.creatorInfo}>
+                <View
+                  style={[
+                    styles.avatar,
+                    { backgroundColor: isDark ? '#0a5c84' : '#0a7ea4' }, // 深色模式使用暗蓝色，浅色模式使用标准蓝色
+                  ]}
+                >
+                  <Text style={styles.avatarText}>
+                    {(model.user?.name || 'A').charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <ThemedText style={styles.creatorName}>
+                  {model.user?.name || t('modelDetail.anonymousUser')}
+                </ThemedText>
+              </View>
+
+              {/* Follow 按钮暂时隐藏，功能待开发 */}
+              {/* <TouchableOpacity
                 style={[styles.followButton, dynamicStyles.primaryButton]}
                 activeOpacity={0.85}
               >
                 <Text style={styles.followButtonText}>Follow</Text>
               </TouchableOpacity> */}
-          </View>
-
-          {/* 统计数据卡片 */}
-          <View style={[styles.statsCard, dynamicStyles.card]}>
-            {/* 喜欢数量 - 可点击 */}
-            <TouchableOpacity
-              style={styles.statItem}
-              onPress={() => handleLikePress()}
-              disabled={isLoading}
-              activeOpacity={0.6}
-            >
-              <View style={styles.statInfo}>
-                <Ionicons
-                  name={isLiked ? 'heart' : 'heart-outline'}
-                  size={22}
-                  color={
-                    isLiked
-                      ? isDark
-                        ? '#FF453A'
-                        : '#FF3B30'
-                      : isDark
-                        ? Colors.dark.icon
-                        : Colors.light.icon
-                  }
-                />
-                <ThemedText
-                  style={[
-                    styles.statValue,
-                    isLiked && {
-                      color: isDark ? '#FF453A' : '#FF3B30',
-                    },
-                  ]}
-                >
-                  {formatNumber(currentLikes)}
-                </ThemedText>
-              </View>
-              <ThemedText style={styles.statLabel}>{t('modelDetail.likes')}</ThemedText>
-            </TouchableOpacity>
-
-            <View style={styles.statDivider} />
-
-            {/* 收藏数量 - 可点击 */}
-            <TouchableOpacity
-              style={styles.statItem}
-              onPress={() => handleFavoritePress()}
-              disabled={isLoading}
-              activeOpacity={0.6}
-            >
-              <View style={styles.statInfo}>
-                <Ionicons
-                  name={isFavorited ? 'star' : 'star-outline'}
-                  size={22}
-                  color={
-                    isFavorited
-                      ? isDark
-                        ? '#FFD60A'
-                        : '#FFCC00'
-                      : isDark
-                        ? Colors.dark.icon
-                        : Colors.light.icon
-                  }
-                />
-                <ThemedText
-                  style={[
-                    styles.statValue,
-                    isFavorited && {
-                      color: isDark ? '#FFD60A' : '#FFCC00',
-                    },
-                  ]}
-                >
-                  {formatNumber(currentFavorites)}
-                </ThemedText>
-              </View>
-              <ThemedText style={styles.statLabel}>{t('modelDetail.favorites')}</ThemedText>
-            </TouchableOpacity>
-
-            <View style={styles.statDivider} />
-
-            {/* 浏览数量 - 仅展示 */}
-            <View style={styles.statItem}>
-              <View style={styles.statInfo}>
-                <Ionicons
-                  name="eye-outline"
-                  size={22}
-                  color={isDark ? Colors.dark.icon : Colors.light.icon}
-                />
-                <ThemedText style={styles.statValue}>{formatNumber(model.viewCount)}</ThemedText>
-              </View>
-              <ThemedText style={styles.statLabel}>{t('modelDetail.views')}</ThemedText>
             </View>
 
-            {/* 加载指示器 */}
-            {isLoading && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator
-                  size="small"
-                  color={isDark ? Colors.dark.tint : Colors.light.tint}
-                />
-              </View>
-            )}
-          </View>
-
-          {/* 模型管理卡片 - 仅模型所有者可见 */}
-          {isOwner && (
-            <View style={[styles.manageCard, dynamicStyles.card]}>
-              <ThemedText style={styles.sectionTitle}>{t('modelDetail.manage')}</ThemedText>
-
-              {/* 私有/公开切换 */}
-              <View style={styles.manageItem}>
-                <View style={styles.manageItemLeft}>
+            {/* 统计数据卡片 */}
+            <View style={[styles.statsCard, dynamicStyles.card]}>
+              {/* 喜欢数量 - 可点击 */}
+              <TouchableOpacity
+                style={styles.statItem}
+                onPress={() => handleLikePress()}
+                disabled={isLoading}
+                activeOpacity={0.6}
+              >
+                <View style={styles.statInfo}>
                   <Ionicons
-                    name={isPrivate ? 'lock-closed' : 'globe'}
-                    size={20}
+                    name={isLiked ? 'heart' : 'heart-outline'}
+                    size={22}
+                    color={
+                      isLiked
+                        ? isDark
+                          ? '#FF453A'
+                          : '#FF3B30'
+                        : isDark
+                          ? Colors.dark.icon
+                          : Colors.light.icon
+                    }
+                  />
+                  <ThemedText
+                    style={[
+                      styles.statValue,
+                      isLiked && {
+                        color: isDark ? '#FF453A' : '#FF3B30',
+                      },
+                    ]}
+                  >
+                    {formatNumber(currentLikes)}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.statLabel}>{t('modelDetail.likes')}</ThemedText>
+              </TouchableOpacity>
+
+              <View style={styles.statDivider} />
+
+              {/* 收藏数量 - 可点击 */}
+              <TouchableOpacity
+                style={styles.statItem}
+                onPress={() => handleFavoritePress()}
+                disabled={isLoading}
+                activeOpacity={0.6}
+              >
+                <View style={styles.statInfo}>
+                  <Ionicons
+                    name={isFavorited ? 'star' : 'star-outline'}
+                    size={22}
+                    color={
+                      isFavorited
+                        ? isDark
+                          ? '#FFD60A'
+                          : '#FFCC00'
+                        : isDark
+                          ? Colors.dark.icon
+                          : Colors.light.icon
+                    }
+                  />
+                  <ThemedText
+                    style={[
+                      styles.statValue,
+                      isFavorited && {
+                        color: isDark ? '#FFD60A' : '#FFCC00',
+                      },
+                    ]}
+                  >
+                    {formatNumber(currentFavorites)}
+                  </ThemedText>
+                </View>
+                <ThemedText style={styles.statLabel}>{t('modelDetail.favorites')}</ThemedText>
+              </TouchableOpacity>
+
+              <View style={styles.statDivider} />
+
+              {/* 浏览数量 - 仅展示 */}
+              <View style={styles.statItem}>
+                <View style={styles.statInfo}>
+                  <Ionicons
+                    name="eye-outline"
+                    size={22}
                     color={isDark ? Colors.dark.icon : Colors.light.icon}
                   />
-                  <View style={styles.manageItemText}>
-                    <ThemedText style={styles.manageItemTitle}>
-                      {t('modelDetail.visibility')}
-                    </ThemedText>
-                    <ThemedText style={styles.manageItemDesc}>
-                      {isPrivate ? t('modelDetail.private') : t('modelDetail.public')}
-                    </ThemedText>
-                  </View>
+                  <ThemedText style={styles.statValue}>{formatNumber(model.viewCount)}</ThemedText>
                 </View>
-                <Switch
-                  value={!isPrivate}
-                  onValueChange={handleTogglePrivacy}
-                  trackColor={{ false: '#767577', true: isDark ? '#0a5c84' : '#0a7ea4' }}
-                  thumbColor="#FFFFFF"
-                />
+                <ThemedText style={styles.statLabel}>{t('modelDetail.views')}</ThemedText>
               </View>
 
-              <View style={styles.manageDivider} />
+              {/* 加载指示器 */}
+              {isLoading && (
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator
+                    size="small"
+                    color={isDark ? Colors.dark.tint : Colors.light.tint}
+                  />
+                </View>
+              )}
+            </View>
 
-              {/* 删除按钮 */}
-              <TouchableOpacity style={styles.deleteItem} onPress={handleDelete}>
-                <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-                <ThemedText style={styles.deleteText}>{t('modelDetail.deleteModel')}</ThemedText>
+            {/* 模型管理卡片 - 仅模型所有者可见 */}
+            {isOwner && (
+              <View style={[styles.manageCard, dynamicStyles.card]}>
+                <ThemedText style={styles.sectionTitle}>{t('modelDetail.manage')}</ThemedText>
+
+                {/* 私有/公开切换 */}
+                <View style={styles.manageItem}>
+                  <View style={styles.manageItemLeft}>
+                    <Ionicons
+                      name={isPrivate ? 'lock-closed' : 'globe'}
+                      size={20}
+                      color={isDark ? Colors.dark.icon : Colors.light.icon}
+                    />
+                    <View style={styles.manageItemText}>
+                      <ThemedText style={styles.manageItemTitle}>
+                        {t('modelDetail.visibility')}
+                      </ThemedText>
+                      <ThemedText style={styles.manageItemDesc}>
+                        {isPrivate ? t('modelDetail.private') : t('modelDetail.public')}
+                      </ThemedText>
+                    </View>
+                  </View>
+                  <Switch
+                    value={!isPrivate}
+                    onValueChange={handleTogglePrivacy}
+                    trackColor={{ false: '#767577', true: isDark ? '#0a5c84' : '#0a7ea4' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+
+                <View style={styles.manageDivider} />
+
+                {/* 删除按钮 */}
+                <TouchableOpacity style={styles.deleteItem} onPress={handleDelete}>
+                  <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                  <ThemedText style={styles.deleteText}>{t('modelDetail.deleteModel')}</ThemedText>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* 描述 */}
+            {model.description && (
+              <View style={styles.descriptionSection}>
+                <ThemedText style={styles.description}>{model.description}</ThemedText>
+              </View>
+            )}
+
+            {/* 技术规格卡片 */}
+            <View style={[styles.specsCard, dynamicStyles.card]}>
+              <ThemedText style={styles.sectionTitle}>{t('modelDetail.techSpecs')}</ThemedText>
+
+              <View style={styles.specRow}>
+                <ThemedText style={styles.specLabel}>{t('modelDetail.format')}</ThemedText>
+                <ThemedText style={styles.specValue}>{model.format || 'STL'}</ThemedText>
+              </View>
+
+              <View style={styles.specRow}>
+                <ThemedText style={styles.specLabel}>{t('modelDetail.fileSize')}</ThemedText>
+                <ThemedText style={styles.specValue}>{formatFileSize(model.fileSize)}</ThemedText>
+              </View>
+
+              {model.faceCount && (
+                <View style={styles.specRow}>
+                  <ThemedText style={styles.specLabel}>{t('modelDetail.faceCount')}</ThemedText>
+                  <ThemedText style={styles.specValue}>{formatNumber(model.faceCount)}</ThemedText>
+                </View>
+              )}
+
+              {model.vertexCount && (
+                <View style={styles.specRow}>
+                  <ThemedText style={styles.specLabel}>{t('modelDetail.vertexCount')}</ThemedText>
+                  <ThemedText style={styles.specValue}>
+                    {formatNumber(model.vertexCount)}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+
+            {/* 操作按钮 */}
+            <View style={styles.actionsSection}>
+              <TouchableOpacity
+                style={[styles.primaryActionButton, dynamicStyles.primaryButton]}
+                onPress={() => handlePrintDebounced()}
+                activeOpacity={0.8}
+              >
+                <IconSymbol name="printer.fill" size={20} color="#fff" />
+                <Text style={styles.primaryActionText}>{t('modelDetail.print')}</Text>
               </TouchableOpacity>
             </View>
-          )}
-
-          {/* 描述 */}
-          {model.description && (
-            <View style={styles.descriptionSection}>
-              <ThemedText style={styles.description}>{model.description}</ThemedText>
-            </View>
-          )}
-
-          {/* 技术规格卡片 */}
-          <View style={[styles.specsCard, dynamicStyles.card]}>
-            <ThemedText style={styles.sectionTitle}>{t('modelDetail.techSpecs')}</ThemedText>
-
-            <View style={styles.specRow}>
-              <ThemedText style={styles.specLabel}>{t('modelDetail.format')}</ThemedText>
-              <ThemedText style={styles.specValue}>{model.format || 'STL'}</ThemedText>
-            </View>
-
-            <View style={styles.specRow}>
-              <ThemedText style={styles.specLabel}>{t('modelDetail.fileSize')}</ThemedText>
-              <ThemedText style={styles.specValue}>{formatFileSize(model.fileSize)}</ThemedText>
-            </View>
-
-            {model.faceCount && (
-              <View style={styles.specRow}>
-                <ThemedText style={styles.specLabel}>{t('modelDetail.faceCount')}</ThemedText>
-                <ThemedText style={styles.specValue}>{formatNumber(model.faceCount)}</ThemedText>
-              </View>
-            )}
-
-            {model.vertexCount && (
-              <View style={styles.specRow}>
-                <ThemedText style={styles.specLabel}>{t('modelDetail.vertexCount')}</ThemedText>
-                <ThemedText style={styles.specValue}>{formatNumber(model.vertexCount)}</ThemedText>
-              </View>
-            )}
           </View>
-
-          {/* 操作按钮 */}
-          <View style={styles.actionsSection}>
-            <TouchableOpacity
-              style={[styles.primaryActionButton, dynamicStyles.primaryButton]}
-              onPress={() => handlePrintDebounced()}
-              activeOpacity={0.8}
-            >
-              <IconSymbol name="printer.fill" size={20} color="#fff" />
-              <Text style={styles.primaryActionText}>{t('modelDetail.print')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </ThemedView>
-  );
-});
+        </ScrollView>
+      </ThemedView>
+    );
+  }
+);
 
 ModelDetail.displayName = 'ModelDetail';
 

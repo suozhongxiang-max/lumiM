@@ -11,12 +11,14 @@ import { logger } from '@/utils/logger';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Alert, Modal,
+  ActivityIndicator,
+  Alert,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
-  View
+  View,
 } from 'react-native';
 import type { ModelListViewProps } from './types';
 
@@ -101,7 +103,8 @@ export function ModelListView({
   /**
    * 获取当前选中选项的标签
    */
-  const selectedSortLabel = sortOptions.find(option => option.value === sort)?.label || sortOptions[0].label;
+  const selectedSortLabel =
+    sortOptions.find(option => option.value === sort)?.label || sortOptions[0].label;
 
   /**
    * 处理筛选按钮点击
@@ -136,7 +139,9 @@ export function ModelListView({
       } else {
         Alert.alert(
           t('modelDetail.updateFailed.title') || '更新失败',
-          result.error.message || t('modelDetail.updateFailed.message') || '更新模型可见性时发生错误'
+          result.error.message ||
+            t('modelDetail.updateFailed.message') ||
+            '更新模型可见性时发生错误'
         );
       }
     } catch (error) {
@@ -175,7 +180,9 @@ export function ModelListView({
               } else {
                 Alert.alert(
                   t('modelDetail.deleteFailed.title') || '删除失败',
-                  result.error.message || t('modelDetail.deleteFailed.message') || '删除模型时发生错误'
+                  result.error.message ||
+                    t('modelDetail.deleteFailed.message') ||
+                    '删除模型时发生错误'
                 );
               }
             } catch (error) {
@@ -309,7 +316,7 @@ export function ModelListView({
                   >
                     <TouchableWithoutFeedback onPress={() => setShowSortDropdown(false)}>
                       <View style={styles.sortDropdownModalOverlay}>
-                        <TouchableWithoutFeedback onPress={() => { }}>
+                        <TouchableWithoutFeedback onPress={() => {}}>
                           <View
                             style={[
                               styles.sortDropdownMenu,
@@ -352,9 +359,7 @@ export function ModelListView({
                                     style={[
                                       styles.sortDropdownCheck,
                                       {
-                                        color: isDark
-                                          ? Colors.dark.tint
-                                          : Colors.light.tint,
+                                        color: isDark ? Colors.dark.tint : Colors.light.tint,
                                       },
                                     ]}
                                   >

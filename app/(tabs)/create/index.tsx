@@ -8,11 +8,25 @@ import { useI18n } from '@/hooks/use-i18n';
 import { useSafeAreaSpacing } from '@/hooks/use-safe-area-spacing';
 import { useCreateStore } from '@/stores';
 import { logger } from '@/utils/logger';
+import { useFocusEffect } from '@react-navigation/native';
+import { imageToBase64, isBase64Image } from '@/utils/image';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Alert, Dimensions, Image, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  Alert,
+  Dimensions,
+  Image,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -210,10 +224,8 @@ export default function CreateScreen() {
   }, [t, quickStylesGroupIndex]);
 
   const [prompt, setPrompt] = useState(initialPrompt);
-  // 改为数组形式，支持多张图片
-  const [imageUrls, setImageUrls] = useState<string[]>(
-    initialImageUrl ? [initialImageUrl] : []
-  );
+  // 改为单个图片URL，限制只能上传一张图片
+  const [imageUrl, setImageUrl] = useState<string>(initialImageUrl || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeStyleId, setActiveStyleId] = useState<string | null>(null);
   // 图片预览 Modal 相关状态
@@ -225,10 +237,13 @@ export default function CreateScreen() {
     state => state.tasks.find(t => t.id === state.currentTaskId) ?? null
   );
   const createTask = useCreateStore(state => state.createTask);
+  const createImageTo3DTask = useCreateStore(state => state.createImageTo3DTask);
   const selectImage = useCreateStore(state => state.selectImage);
   const generateModel = useCreateStore(state => state.generateModel);
   const cancelTask = useCreateStore(state => state.cancelTask);
   const reset = useCreateStore(state => state.reset);
+  const startTaskSubscription = useCreateStore(state => state._startTaskSubscription);
+  const stopTaskSubscription = useCreateStore(state => state._stopTaskSubscription);
 
   // 动态颜色
   const palette = useMemo(() => (isDark ? DARK_PALETTE : LIGHT_PALETTE), [isDark]);
@@ -236,22 +251,79 @@ export default function CreateScreen() {
   const secondaryTextColor = palette.secondary;
   const tertiaryTextColor = palette.tertiary;
 
+  useFocusEffect(
+    useCallback(() => {
+      const activeTaskId = currentTask?.id;
+      if (!activeTaskId) {
+        return undefined;
+      }
+
+      logger.info('[CreateScreen] focus start task SSE subscription:', {
+        taskId: activeTaskId,
+        status: currentTask.status,
+      });
+      startTaskSubscription(activeTaskId);
+
+      return () => {
+        logger.info('[CreateScreen] blur stop task SSE subscription:', {
+          taskId: activeTaskId,
+        });
+        stopTaskSubscription(activeTaskId);
+      };
+    }, [currentTask?.id, currentTask?.status, startTaskSubscription, stopTaskSubscription])
+  );
+
   // 处理提交
   const handleSubmit = async (promptInput: string | undefined) => {
     const finalPrompt = promptInput || prompt;
+
+    // 如果有上传图片，检查图片是否准备就绪
+    if (imageUrl && !isSubmitting) {
+      try {
+        setIsSubmitting(true);
+        logger.info('创建图生3D任务:', { prompt: finalPrompt, imageUrl });
+
+        let base64Data = imageUrl;
+
+        // 如果还不是 base64 格式，需要转换
+        if (!isBase64Image(imageUrl)) {
+          logger.info('图片不是 base64 格式，开始转换...');
+          base64Data = await imageToBase64(imageUrl);
+          logger.info('图片转换为 base64 成功');
+        }
+
+        // 调用图生3D接口，直接生成3D模型
+        await createImageTo3DTask(finalPrompt.trim(), base64Data);
+
+        // 清空输入
+        setPrompt('');
+        setActiveStyleId(null);
+        setImageUrl('');
+      } catch (error) {
+        logger.error('创建图生3D任务失败:', error);
+        Alert.alert(
+          t('create.error.title') || '生成失败',
+          error instanceof Error ? error.message : '创建任务失败，请重试'
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // 没有上传图片的情况，必须填写文字
     if (!finalPrompt.trim() || isSubmitting) return;
 
     try {
       setIsSubmitting(true);
-      logger.info('创建生成任务:', { prompt: finalPrompt, imageUrls });
+      logger.info('创建文生图任务:', { prompt: finalPrompt });
 
-      // 创建任务，传递参考图片数组
-      await createTask(finalPrompt.trim(), imageUrls.length > 0 ? imageUrls : undefined);
+      // 创建文生图任务（原有流程）
+      await createTask(finalPrompt.trim(), undefined);
 
       // 清空输入
       setPrompt('');
       setActiveStyleId(null);
-      setImageUrls([]);
     } catch (error) {
       logger.error('创建任务失败:', error);
     } finally {
@@ -266,16 +338,16 @@ export default function CreateScreen() {
     }
   };
 
-  // 删除指定索引的图片
-  const handleRemoveImage = (index: number) => {
-    setImageUrls(prev => prev.filter((_, i) => i !== index));
+  // 删除图片
+  const handleRemoveImage = () => {
+    setImageUrl('');
   };
 
   // 打开图片预览 Modal
-  const handlePreviewImage = (imageUrl: string) => {
-    setPreviewImageUrl(imageUrl);
+  const handlePreviewImage = (imageUrlParam: string) => {
+    setPreviewImageUrl(imageUrlParam);
     setPreviewImageVisible(true);
-    logger.info('[Create] 打开图片预览:', { imageUrl });
+    logger.info('[Create] 打开图片预览:', { imageUrl: imageUrlParam });
   };
 
   // 关闭图片预览 Modal
@@ -290,22 +362,22 @@ export default function CreateScreen() {
     try {
       logger.info('[handlePickImage] 开始选择图片流程');
 
-      // 检查图片数量限制（最多5张）
-      if (imageUrls.length >= 5) {
-        logger.warn('[handlePickImage] 已达到图片数量限制');
+      // 检查是否已有图片（限制只能上传一张）
+      if (imageUrl) {
+        logger.warn('[handlePickImage] 已有图片，需要先删除现有图片才能上传新图片');
         Alert.alert(
           t('create.imageLimit.title') || '图片数量限制',
-          t('create.imageLimit.message') || '最多只能上传5张参考图片'
+          t('create.imageLimit.singleMessage') || '只能上传一张参考图片，请先删除现有图片'
         );
         return;
       }
 
       logger.info('[handlePickImage] 准备调用 DocumentPicker.getDocumentAsync');
 
-      // 打开文档选择器（支持多选）
+      // 打开文档选择器（单选）
       const result = await DocumentPicker.getDocumentAsync({
         type: 'image/*', // 只选择图片类型
-        multiple: true, // 允许多选
+        multiple: false, // 不允许多选
         copyToCacheDirectory: true, // 复制到缓存目录
       });
 
@@ -323,35 +395,54 @@ export default function CreateScreen() {
 
       // 处理选择结果
       if (result.assets && result.assets.length > 0) {
-        // 计算还可以选择多少张图片
-        const remainingCount = 5 - imageUrls.length;
+        // 获取选中图片的 URI（只取第一张）
+        let selectedUri = result.assets[0].uri;
 
-        // 获取选中图片的 URI（限制数量）
-        const selectedAssets = result.assets.slice(0, remainingCount);
-        const newUris = selectedAssets.map(asset => asset.uri);
+        logger.info('[handlePickImage] 原始 URI:', {
+          uri: selectedUri,
+          scheme: selectedUri.split('://')[0],
+        });
+
+        // 对于 Android 的 content URI，需要复制到缓存目录
+        if (selectedUri.startsWith('content://')) {
+          logger.info('[handlePickImage] 检测到 content URI，需要复制到缓存目录');
+          try {
+            // 读取文件信息
+            const fileInfo = await FileSystem.getInfoAsync(selectedUri);
+            if (!fileInfo.exists) {
+              throw new Error('文件不存在');
+            }
+
+            // 使用 documentDirectory 作为缓存目录
+            const documentDir = FileSystem.documentDirectory!;
+            const fileName = `image_${Date.now()}.jpg`;
+            const cachePath = `${documentDir}${fileName}`;
+
+            // 复制文件到缓存目录
+            await FileSystem.copyAsync({
+              from: selectedUri,
+              to: cachePath,
+            });
+
+            selectedUri = cachePath;
+            logger.info('[handlePickImage] 文件已复制到缓存目录:', { cachePath });
+          } catch (copyError) {
+            logger.error('[handlePickImage] 复制文件失败:', copyError);
+            Alert.alert(
+              t('create.imageError.title') || '选择失败',
+              '无法读取选中的图片，请选择其他图片'
+            );
+            return;
+          }
+        }
 
         logger.info('[handlePickImage] 准备添加图片:', {
-          selectedCount: newUris.length,
-          remainingCount,
-          newUris,
+          selectedUri,
         });
 
-        setImageUrls(prev => {
-          const updated = [...prev, ...newUris];
-          logger.info('[handlePickImage] 图片列表已更新:', {
-            before: prev.length,
-            after: updated.length,
-          });
-          return updated;
-        });
+        setImageUrl(selectedUri);
 
-        // 如果用户选择的图片超过限制，提示
-        if (result.assets.length > remainingCount) {
-          const message = t('create.imageLimit.overflowMessage', {
-            count: remainingCount,
-          });
-          Alert.alert(t('create.imageLimit.title'), message);
-        }
+        logger.info('[handlePickImage] 图片已设置');
       } else {
         logger.warn('[handlePickImage] 没有选择任何文件');
       }
@@ -409,30 +500,31 @@ export default function CreateScreen() {
 
   // 处理查看3D模型
   const handleView3D = () => {
-    if (!currentTask?.modelUrl || !currentTask?.modelId) {
+    if (!currentTask?.model?.modelUrl || !currentTask?.model?.id) {
       logger.warn('[Create] handleView3D: modelUrl 或 modelId 为空', {
-        hasModelUrl: !!currentTask?.modelUrl,
-        hasModelId: !!currentTask?.modelId,
+        hasModel: !!currentTask?.model,
+        hasModelUrl: !!currentTask?.model?.modelUrl,
+        hasModelId: !!currentTask?.model?.id,
       });
       return;
     }
 
     logger.info('[Create] 导航到 3D 模型查看器:', {
-      modelId: currentTask.modelId,
-      modelUrl: currentTask.modelUrl,
+      modelId: currentTask.model.id,
+      modelUrl: currentTask.model.modelUrl,
     });
 
     // 导航到3D查看器页面，传递 modelUrl 作为查询参数
     // 这样可以直接预览，不需要从 API 获取模型详情
-    const encodedUrl = encodeURIComponent(currentTask.modelUrl);
-    router.push(`/model-viewer/${currentTask.modelId}?modelUrl=${encodedUrl}`);
+    const encodedUrl = encodeURIComponent(currentTask.model.modelUrl);
+    router.push(`/model-viewer/${currentTask.model.id}?modelUrl=${encodedUrl}`);
   };
 
   // 处理继续创作新的
   const handleCreateNew = () => {
     reset(); // 重置当前任务
     setPrompt(''); // 清空输入
-    setImageUrls([]); // 清空图片数组
+    setImageUrl(''); // 清空图片
   };
 
   // 处理刷新快速灵感组
@@ -444,7 +536,8 @@ export default function CreateScreen() {
     logger.info('[Create] 切换快速灵感组:', quickStylesGroupIndex + 1);
   };
 
-  const isButtonActive = prompt.trim().length > 0 && !isSubmitting;
+  // 按钮激活状态：有图片时不需要文字，没图片时必须有文字
+  const isButtonActive = (imageUrl.length > 0 || prompt.trim().length > 0) && !isSubmitting;
 
   // 根据当前任务状态渲染不同的 UI
   const renderContent = () => {
@@ -501,14 +594,14 @@ export default function CreateScreen() {
               ]}
             >
               {/* 清空按钮 - 只在有文本或有图片时显示 */}
-              {(prompt.length > 0 || imageUrls.length > 0) && (
+              {(prompt.length > 0 || imageUrl.length > 0) && (
                 <TouchableOpacity
                   style={[styles.clearButton]}
                   onPress={() => {
                     // 清空输入、选中的样式和图片
                     setPrompt('');
                     setActiveStyleId(null);
-                    setImageUrls([]);
+                    setImageUrl('');
                   }}
                   activeOpacity={0.7}
                 >
@@ -516,63 +609,46 @@ export default function CreateScreen() {
                 </TouchableOpacity>
               )}
 
-              {/* 图片预览区域 - 支持多张图片横向滚动 */}
-              {imageUrls.length > 0 && (
-                <View style={styles.imagesPreviewContainer}>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.imagesScrollContent}
-                  >
-                    {imageUrls.map((imageUrl, index) => (
-                      <View key={index} style={styles.imagePreviewWrapper}>
-                        {/* 图片点击区域 - 点击查看大图 */}
-                        <TouchableOpacity
-                          style={styles.imagePreviewTouchable}
-                          onPress={() => handlePreviewImage(imageUrl)}
-                          activeOpacity={0.9}
-                        >
-                          <Image
-                            source={{ uri: imageUrl }}
-                            style={styles.imagePreview}
-                            resizeMode="cover"
-                          />
-                        </TouchableOpacity>
-                        {/* 删除按钮 - 独立的点击区域，不会被图片点击事件触发 */}
-                        <TouchableOpacity
-                          style={[styles.removeImageButton, { backgroundColor: palette.card }]}
-                          onPress={() => handleRemoveImage(index)}
-                          activeOpacity={0.7}
-                        >
-                          <IconSymbol name="clear.col" size={20} color={palette.tertiary} />
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-                    {/* 添加图片按钮 - 未达到上限时显示 */}
-                    {imageUrls.length < 5 && (
-                      <TouchableOpacity
-                        style={[styles.addImageButton, { borderColor: palette.border }]}
-                        onPress={handlePickImage}
-                        activeOpacity={0.7}
-                      >
-                        <IconSymbol name="plus" size={24} color={palette.secondary} />
-                        <Text style={[styles.addImageText, { color: palette.secondary }]}>
-                          {t('create.addImage') || '添加'}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  </ScrollView>
+              {/* 图片预览区域 - 单张图片显示 */}
+              {imageUrl.length > 0 && (
+                <View style={styles.imagePreviewContainer}>
+                  <View style={styles.imagePreviewWrapper}>
+                    {/* 图片点击区域 - 点击查看大图 */}
+                    <TouchableOpacity
+                      style={styles.imagePreviewTouchable}
+                      onPress={() => handlePreviewImage(imageUrl)}
+                      activeOpacity={0.9}
+                    >
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.imagePreview}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                    {/* 删除按钮 - 独立的点击区域，不会被图片点击事件触发 */}
+                    <TouchableOpacity
+                      style={[styles.removeImageButton, { backgroundColor: palette.card }]}
+                      onPress={handleRemoveImage}
+                      activeOpacity={0.7}
+                    >
+                      <IconSymbol name="clear.col" size={20} color={palette.tertiary} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
 
               {/* 无图片时显示添加图片按钮 */}
-              {imageUrls.length === 0 && (
+              {imageUrl.length === 0 && (
                 <TouchableOpacity
                   style={[styles.noImageAddButton, { borderColor: palette.border }]}
                   onPress={handlePickImage}
                   activeOpacity={0.7}
                 >
-                  <IconSymbol name="photo.on.rectangle.angled" size={20} color={palette.secondary} />
+                  <IconSymbol
+                    name="photo.on.rectangle.angled"
+                    size={20}
+                    color={palette.secondary}
+                  />
                   <Text style={[styles.addImageText, { color: palette.secondary }]}>
                     {t('create.addImage')}
                   </Text>
@@ -585,7 +661,7 @@ export default function CreateScreen() {
                   {
                     color: textColor,
                     // 当有图片时，减少输入框最小高度
-                    minHeight: imageUrls.length > 0 ? 80 : 120,
+                    minHeight: imageUrl.length > 0 ? 80 : 120,
                   },
                 ]}
                 placeholder={t('create.promptPlaceholder')}
@@ -767,7 +843,7 @@ export default function CreateScreen() {
             <View style={styles.previewImageContainer}>
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={(e) => {
+                onPress={e => {
                   // 阻止事件冒泡，防止点击图片时关闭 Modal
                   e.stopPropagation();
                 }}
@@ -854,14 +930,11 @@ const styles = StyleSheet.create({
     // 为右上角的清空按钮留出空间
     paddingRight: 50,
   },
-  // 图片预览容器（支持横向滚动）
-  imagesPreviewContainer: {
+  // 图片预览容器（单张图片显示）
+  imagePreviewContainer: {
     width: '100%',
     marginBottom: Spacing.md,
-  },
-  imagesScrollContent: {
-    paddingRight: Spacing.md,
-    gap: Spacing.sm,
+    alignItems: 'flex-start',
   },
   imagePreviewWrapper: {
     position: 'relative',
@@ -895,17 +968,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
-  },
-  // 添加图片按钮（横向滚动中的）
-  addImageButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.xs,
   },
   // 添加图片按钮（无图片时显示）
   noImageAddButton: {

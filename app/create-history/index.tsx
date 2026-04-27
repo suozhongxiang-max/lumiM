@@ -2,13 +2,17 @@ import { AuthGuard } from '@/components/auth';
 import { LoadingStateView } from '@/components/loading-state-view';
 import { ScreenWrapper } from '@/components/screen-wrapper';
 import { ThemedText } from '@/components/themed-text';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { BorderRadius, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/hooks/use-i18n';
-import { useAsyncController } from '@/hooks/useAsyncController';
 import { useNavigationDebounce } from '@/hooks/use-navigation-debounce';
-import { fetchTaskList, deleteTask as deleteTaskApi, type BackendGenerationTask } from '@/services/api/tasks';
+import { useAsyncController } from '@/hooks/useAsyncController';
+import {
+  deleteTask as deleteTaskApi,
+  fetchTaskList,
+  type BackendGenerationTask,
+} from '@/services/api/tasks';
+import { formatDateTime } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { createImmersiveHeaderOptions } from '@/utils/navigation';
 import { Ionicons } from '@expo/vector-icons';
@@ -271,9 +275,15 @@ export default function CreateHistoryScreen() {
   // ==================== 渲染任务卡片 ====================
   /**
    * 获取任务的预览图
-   * 优先使用选中的图片，否则使用第一张图片
+   * 优先级：模型预览图 > 选中的图片 > 第一张生成的图片 > 第一张参考图片（图生3D）
    */
   const getTaskPreviewImage = (task: BackendGenerationTask): string | null => {
+    // 优先使用模型预览图
+    if (task.model?.previewImageUrl) {
+      return task.model.previewImageUrl;
+    }
+
+    // 使用选中的图片
     if (task.selectedImageIndex !== null && task.images) {
       const selectedImage = task.images.find(img => img.index === task.selectedImageIndex);
       if (selectedImage?.imageUrl) {
@@ -281,8 +291,18 @@ export default function CreateHistoryScreen() {
       }
     }
 
-    // 使用第一张图片
-    return task.images?.[0]?.imageUrl || null;
+    // 使用第一张生成的图片
+    if (task.images?.[0]?.imageUrl) {
+      return task.images[0].imageUrl;
+    }
+
+    // 图生3D任务：使用参考图片
+    const referenceImages = (task as any).referenceImages;
+    if (referenceImages && referenceImages.length > 0) {
+      return referenceImages[0];
+    }
+
+    return null;
   };
 
   /**
@@ -292,17 +312,12 @@ export default function CreateHistoryScreen() {
     const previewImage = getTaskPreviewImage(item);
     const statusConfig = getStatusConfig(item.status, t);
 
-    // 格式化时间，包含时分秒
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    };
+    // 调试：输出时间信息（仅首次渲染时输出）
+    logger.debug('[CreateHistory] 任务时间详情:', {
+      id: item.id,
+      createdAt: item.createdAt,
+      formattedTime: formatDateTime(item.createdAt),
+    });
 
     // 处理删除任务
     const handleDelete = (e: any) => {
@@ -331,7 +346,9 @@ export default function CreateHistoryScreen() {
                 } else {
                   Alert.alert(
                     t('createHistory.deleteFailed.title') || '删除失败',
-                    result.error.message || t('createHistory.deleteFailed.message') || '删除任务时发生错误'
+                    result.error.message ||
+                      t('createHistory.deleteFailed.message') ||
+                      '删除任务时发生错误'
                   );
                 }
               } catch (error) {
@@ -375,10 +392,7 @@ export default function CreateHistoryScreen() {
 
           {/* 右上角状态标签 */}
           <View
-            style={[
-              styles.statusBadgeTopRight,
-              { backgroundColor: statusConfig.backgroundColor },
-            ]}
+            style={[styles.statusBadgeTopRight, { backgroundColor: statusConfig.backgroundColor }]}
           >
             <ThemedText style={[styles.statusTextTopRight, { color: statusConfig.textColor }]}>
               {statusConfig.label}
@@ -400,9 +414,7 @@ export default function CreateHistoryScreen() {
           <ThemedText numberOfLines={2} style={styles.taskPrompt}>
             {item.originalPrompt}
           </ThemedText>
-          <ThemedText style={styles.taskDate}>
-            {formatDate(item.createdAt)}
-          </ThemedText>
+          <ThemedText style={styles.taskDate}>{formatDateTime(item.createdAt)}</ThemedText>
         </View>
       </TouchableOpacity>
     );
