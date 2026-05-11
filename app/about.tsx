@@ -21,6 +21,7 @@ import { ThemedText } from '@/components/themed-text';
 import { FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useI18n } from '@/hooks/use-i18n';
+import { otaUpdateManager } from '@/utils/ota-update';
 import { logger } from '@/utils/logger';
 
 export default function AboutScreen() {
@@ -64,7 +65,7 @@ function AboutContent() {
 
   /**
    * 检查更新功能
-   * 注意：这是一个模拟实现，实际项目中需要接入真实的更新检测 API
+   * 使用 Expo EAS Update 进行 OTA 更新
    */
   const handleCheckUpdate = async () => {
     logger.info('用户点击检查更新');
@@ -73,19 +74,42 @@ function AboutContent() {
     setIsCheckingUpdate(true);
 
     try {
-      // 模拟网络请求延迟
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 检查更新
+      const result = await otaUpdateManager.checkForUpdate();
 
-      // TODO: 实际项目中应该调用后端 API 检查更新
-      // const response = await fetch('https://api.example.com/check-update');
-      // const data = await response.json();
+      if (!result.isAvailable) {
+        // 没有更新
+        Alert.alert(t('about.checkUpdate'), t('about.latestVersion'), [
+          { text: t('dialog.common.confirm') },
+        ]);
+        logger.info('检查更新完成：已是最新版本');
+        return;
+      }
 
-      // 模拟检查结果：显示已是最新版本
-      Alert.alert(t('about.checkUpdate'), t('about.latestVersion'), [
-        { text: t('dialog.common.confirm') },
-      ]);
+      // 有更新，提示用户
+      Alert.alert(
+        t('about.checkUpdate'),
+        '发现新版本，是否立即下载并安装？',
+        [
+          {
+            text: t('dialog.common.cancel'),
+            style: 'cancel',
+          },
+          {
+            text: '立即更新',
+            onPress: async () => {
+              setIsCheckingUpdate(true);
+              await otaUpdateManager.fetchAndApplyUpdate({
+                type: 'manual',
+                restartNow: true,
+              });
+              setIsCheckingUpdate(false);
+            },
+          },
+        ]
+      );
 
-      logger.info('检查更新完成：已是最新版本');
+      logger.info('发现可用更新');
     } catch (error) {
       // 发生错误时显示错误提示
       logger.error('检查更新失败:', error);

@@ -1,18 +1,18 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { enableMapSet } from 'immer';
 import { useEffect } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import 'react-native-reanimated';
-import { enableMapSet } from 'immer';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ErrorBoundary, setupGlobalErrorHandlers } from '@/components/error-boundary';
 import { Toast } from '@/components/toast';
+import { SessionProvider } from '@/contexts/session';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { setUnauthorizedHandler } from '@/services/api-client';
 import { useAuthStore } from '@/stores';
-import { SessionProvider } from '@/contexts/session';
 
 // 初始化 i18n 国际化配置（必须在应用启动时导入）
 import '@/i18n';

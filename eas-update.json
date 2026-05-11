@@ -1,0 +1,7 @@
+{
+  "$schema": "https://exp.host/~private/eas-update/registry.schema.json",
+  "update": {
+    "branch": "production",
+    "message": "自动更新 - 用于 Android OTA"
+  }
+}

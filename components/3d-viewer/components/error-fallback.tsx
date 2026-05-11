@@ -3,12 +3,13 @@
  * 当模型加载失败时显示友好的错误信息和重试按钮
  */
 
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { ModelError } from '@/types/models/3d-viewer';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { useI18n } from '@/hooks/use-i18n';
+import type { ModelError } from '@/types/models/3d-viewer';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface ErrorFallbackProps {
   error: ModelError;
@@ -17,41 +18,42 @@ interface ErrorFallbackProps {
 
 export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onRetry }) => {
   const colorScheme = useColorScheme();
+  const { t } = useI18n();
   // 确保 colorScheme 不为 null，提供默认值 'light'
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme.toString()];
 
-  // 根据错误类型显示不同的图标和消息
+  // 根据错误类型显示不同的图标和消息（双语支持）
   const getErrorConfig = () => {
     switch (error.type) {
       case 'network':
         return {
           icon: 'wifi.slash' as const,
-          title: '网络连接失败',
-          description: '无法加载 3D 模型，请检查网络连接',
+          title: t('modelViewer.errorNetwork'),
+          description: t('modelViewer.errorNetworkDesc', '无法加载 3D 模型，请检查网络连接'),
         };
       case 'parse':
         return {
           icon: 'exclamationmark.triangle' as const,
-          title: '模型格式错误',
-          description: '该 3D 模型文件格式不正确或已损坏',
+          title: t('modelViewer.errorParse'),
+          description: t('modelViewer.errorParseDesc', '该 3D 模型文件格式不正确或已损坏'),
         };
       case 'timeout':
         return {
           icon: 'clock' as const,
-          title: '加载超时',
-          description: '模型加载时间过长，请稍后重试',
+          title: t('modelViewer.errorTimeout'),
+          description: t('modelViewer.errorTimeoutDesc', '模型加载时间过长，请稍后重试'),
         };
       case 'size':
         return {
           icon: 'doc.badge.gearshape' as const,
-          title: '文件过大',
-          description: '该 3D 模型文件太大，无法加载',
+          title: t('modelViewer.errorSize'),
+          description: t('modelViewer.errorSizeDesc', '该 3D 模型文件太大，无法加载'),
         };
       default:
         return {
           icon: 'xmark.circle' as const,
-          title: '加载失败',
-          description: error.message || '未知错误',
+          title: t('modelViewer.error'),
+          description: error.message || t('common.unknownError', '未知错误'),
         };
     }
   };

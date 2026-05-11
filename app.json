@@ -15,7 +15,16 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "需要相册权限来选择参考图片",
         "NSPhotoLibraryAddUsageDescription": "需要相册权限来保存参考图片",
-        "NSCameraUsageDescription": "需要相机权限来拍摄参考图片"
+        "NSCameraUsageDescription": "需要相机权限来拍摄参考图片",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSExceptionDomains": {
+            "lumi.ai3d.top": {
+              "NSExceptionAllowsInsecureHTTPLoads": true,
+              "NSIncludesSubdomains": true
+            }
+          }
+        }
       }
     },
     "android": {
@@ -73,6 +82,12 @@
       "eas": {
         "projectId": "900005cc-ad3d-46f4-be0b-4423d2ee4985"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/900005cc-ad3d-46f4-be0b-4423d2ee4985"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

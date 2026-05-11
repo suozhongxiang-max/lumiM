@@ -68,9 +68,9 @@ export const ViewerConfig = {
   performance: {
     // 模型大小限制（字节）
     maxModelSize: {
-      ios: 50 * 1024 * 1024, // 50MB
-      android: 30 * 1024 * 1024, // 30MB
-      default: 40 * 1024 * 1024, // 40MB
+      ios: 500 * 1024 * 1024, // 500MB
+      android: 500 * 1024 * 1024, // 500MB
+      default: 500 * 1024 * 1024, // 500MB
     },
     // 最大多边形数量
     maxPolygons: 100000,

@@ -11,8 +11,8 @@ import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 're
 
 import { AuthGuard, setLoggingOut } from '@/components/auth';
 import { LanguageSelector } from '@/components/language-selector';
-import { ThemeSelector } from '@/components/theme-selector';
 import { ScreenWrapper } from '@/components/screen-wrapper';
+import { ThemeSelector } from '@/components/theme-selector';
 import { ThemedText } from '@/components/themed-text';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 import { Spacing } from '@/constants/theme';

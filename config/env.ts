@@ -5,8 +5,8 @@
 
 export const ENV = {
   // API 配置
-  // API_URL: process.env.EXPO_PUBLIC_API_URL || 'http://lumi.ai3d.top:80',
-  API_URL: 'http://192.168.123.116:3000',
+  API_URL: process.env.EXPO_PUBLIC_API_URL || 'http://8.148.245.128:3000',
+  // API_URL: 'http://8.148.245.128:3000',
 
   // 环境名称
   ENV_NAME: (process.env.EXPO_PUBLIC_ENV || 'development') as

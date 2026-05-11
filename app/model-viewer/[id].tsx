@@ -30,8 +30,8 @@ export default function ModelViewer3DScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme.isDark;
   const { t } = useI18n();
-  // 确保 colorScheme 不为 null，提供默认值 'light'
-  const colors = Colors[colorScheme ?? 'light'];
+  // 使用 toString() 获取颜色方案字符串
+  const colors = Colors[colorScheme.toString()];
   const { id, modelUrl: directModelUrl } = useLocalSearchParams<{
     id: string;
     modelUrl?: string;
@@ -133,7 +133,20 @@ export default function ModelViewer3DScreen() {
 
   const handleError = (error: any) => {
     logger.error(`Failed to load 3D model: ${error.message}`, 'ModelViewer3DScreen');
-    setError(t('modelViewer.error'));
+
+    // 根据错误类型显示不同的错误消息（双语支持）
+    let errorMessage = t('modelViewer.error');
+    if (error?.type === 'size') {
+      errorMessage = t('modelViewer.errorSize');
+    } else if (error?.type === 'network') {
+      errorMessage = t('modelViewer.errorNetwork');
+    } else if (error?.type === 'parse') {
+      errorMessage = t('modelViewer.errorParse');
+    } else if (error?.type === 'timeout') {
+      errorMessage = t('modelViewer.errorTimeout');
+    }
+
+    setError(errorMessage);
   };
 
   // 重置相机视角
