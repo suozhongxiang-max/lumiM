@@ -141,7 +141,7 @@ export default function ModelViewer3DScreen() {
     } else if (error?.type === 'network') {
       errorMessage = t('modelViewer.errorNetwork');
     } else if (error?.type === 'parse') {
-      errorMessage = t('modelViewer.errorParse');
+      errorMessage = t('modelViewer.errorSize');
     } else if (error?.type === 'timeout') {
       errorMessage = t('modelViewer.errorTimeout');
     }
