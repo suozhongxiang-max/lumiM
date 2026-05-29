@@ -83,8 +83,19 @@ export default function ScanPrinterScreen() {
     logger.info('[ScanPrinterScreen] 扫描到二维码:', data);
 
     try {
+      // 清理二维码数据：去除可能存在的首尾空格和单引号
+      // 注意：某些二维码生成工具可能会在 JSON 字符串外层添加单引号
+      // 这会导致 JSON.parse() 失败，因此需要先去除
+      let cleanedData = data.trim();
+
+      // 如果字符串被单引号包裹，去除单引号
+      if (cleanedData.startsWith("'") && cleanedData.endsWith("'")) {
+        cleanedData = cleanedData.slice(1, -1);
+        logger.debug('[ScanPrinterScreen] 检测到单引号包裹，已自动去除');
+      }
+
       // 解析二维码数据
-      const qrData: QRCodeData = JSON.parse(data);
+      const qrData: QRCodeData = JSON.parse(cleanedData);
 
       // 验证数据格式
       if (!qrData.deviceName || !qrData.code) {
